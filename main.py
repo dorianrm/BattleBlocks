@@ -24,7 +24,7 @@ def draw_cubes(win, user_grid, opp_grid):
     for i in range(COLS):
         for j in range(ROWS):
             user_grid[i][j].draw(win, c_w, c_h, 25, 61)
-            opp_grid[i][j].draw(win, c_w, c_h, 700+26, 61)
+            opp_grid[i][j].draw(win, c_w, c_h, (WIDTH//2)+26, 61)
 
 def draw_board(win):
     #col lines
@@ -57,7 +57,7 @@ def draw_board(win):
 
 
 def draw_window(win, user_grid, opp_grid):
-    win.fill((255,255,255))
+    win.fill((180,180,180))
     pygame.display.set_caption('--- Battle Blocks ---')
     draw_cubes(win, user_grid, opp_grid)
     draw_board(win)
