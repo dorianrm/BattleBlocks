@@ -292,25 +292,25 @@ def event_check(win, run, user_grid, opp_grid):
                             size = CHOSEN_SHIP.size
                             y,x = row, col
                             for i in range(size):
-                                # user_grid[x][y].color = SELECT
                                 CHOSEN_SHIP.coords.append((x,y))
                                 y += 1
                                 coords.append((x,y))
                             CHOSEN_SHIP.placed = True
                             CHOSEN_SHIP.color = SELECT
-                            # CHOSEN_SHIP.set_ship_selected(user_grid)
-                            # CHOSEN_SHIP = None
+
                     else:
+                        chosen_counter = 0
                         for ship in SHIPS['user'].values():
                             if (col, row) in ship.coords:
+                                chosen_counter += 1
                                 CHOSEN_SHIP = ship
                                 ship.icon_color = SELECT
                                 ship.color = SELECT
-                                # ship.set_ship_selected(user_grid)
                             else:
                                 ship.icon_color = UNSELECT
                                 ship.color = UNSELECT
-                                # ship.set_ship_unselected(user_grid)
+                        if chosen_counter != 1:
+                            CHOSEN_SHIP = None
                                 
                 # opp grid area
                 else:
@@ -321,9 +321,11 @@ def event_check(win, run, user_grid, opp_grid):
                                 cube.color = 'Red'
 
             # button / icon area
-            else:
+            elif mouse_pos[0] < 450:
+                chosen_counter = 0
                 for ship in SHIPS['user'].values():
                     if ship.get_icon().collidepoint(mouse_pos):
+                        chosen_counter += 1
                         ship.icon_color = SELECT
                         ship.selected = True
                         CHOSEN_SHIP = ship
@@ -334,16 +336,15 @@ def event_check(win, run, user_grid, opp_grid):
                         ship.selected = False
                         if ship.placed:
                             ship.color = UNSELECT
-                        
+                if chosen_counter != 1:
+                    CHOSEN_SHIP = None
+            
+            # joystick area
+            else:
+                pass
 
-                # if CHOSEN_SHIP:
-                #     for ship in SHIPS['user'].values():
-                #         if ship.icon_color == SELECT and ship != CHOSEN_SHIP:
-                #             ship.icon_color = (100,100,100)
-                #             ship.selected = False
-                # print("here")
-                # if CHOSEN_SHIP != None:
-                #     print(CHOSEN_SHIP)
+            if CHOSEN_SHIP != None:
+                print(CHOSEN_SHIP.name)
 
     return run
 
