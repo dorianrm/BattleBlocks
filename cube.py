@@ -5,13 +5,22 @@ class Cube(object):
         self.col = col #x
         self.row = row #y
         self.color = (42, 179, 247) #change mid for darker
+        self.obj = None
 
     def draw(self, win, w_x, w_y, x_o, y_o):
-        pygame.draw.rect(win, self.color, ((self.col*w_x)+x_o, (self.row*w_y)+y_o, w_x, w_y))
+        if not self.obj:
+            self.obj = pygame.Rect((self.col*w_x)+x_o, (self.row*w_y)+y_o, w_x, w_y)
+        pygame.draw.rect(win, self.color, self.obj)
         # rect(left_x, left_y, dim_x, dim_y)
         
-    def get_pos(self):
+    def get_grid_pos(self):
         return (self.col, self.row)
+    
+    def get_pos(self):
+        pass
+    
+    def get_obj(self):
+        return self.obj
 
     # Color setting
     # def set_start(self):
