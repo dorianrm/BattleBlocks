@@ -154,6 +154,7 @@ def draw_battleship(win, size, x, y, s, player):
         battleship = pygame.Rect(x, y, l, size)
         SHIPS[player]['battleship'].icon = battleship
     color = SHIPS[player]['battleship'].color
+    print(color)
     pygame.draw.rect(win, color, battleship)
 
     outline_color = SHIPS[player]['battleship'].outline_color
@@ -215,6 +216,8 @@ def draw_ships(win, grid):
     #create rect for background color
     for ship in SHIPS['user'].values():
         grid = ship.draw(grid)
+        if len(ship.coords) != 0:
+            print(ship.name, ship.coords)
     return grid
 
 def draw_joystick(win):
@@ -286,14 +289,16 @@ def event_check(win, run, user_grid, opp_grid):
                     if CHOSEN_SHIP and not CHOSEN_SHIP.check_placed():
                         #place ship in grid
                         if row + CHOSEN_SHIP.size <= ROWS:
+                            coords = []
                             size = CHOSEN_SHIP.size
                             y,x = row, col
                             for i in range(size):
                                 user_grid[x][y].color = (100,100,100)
                                 CHOSEN_SHIP.coords.append((x,y))
                                 y += 1
+                                coords.append((x,y))
                             CHOSEN_SHIP.placed = True
-                            CHOSEN_SHIP = None                      
+                            CHOSEN_SHIP = None
                 # opp grid area
                 else:
                     for row in opp_grid:
@@ -306,15 +311,15 @@ def event_check(win, run, user_grid, opp_grid):
             else:
                 for ship in SHIPS['user'].values():
                     if ship.get_icon().collidepoint(mouse_pos):
-                        ship.outline_color = 'Yellow'
+                        ship.color = 'Yellow'
                         ship.selected = True
                         CHOSEN_SHIP = ship
                         break
 
                 if CHOSEN_SHIP:
                     for ship in SHIPS['user'].values():
-                        if ship.outline_color == 'Yellow' and ship != CHOSEN_SHIP:
-                            ship.outline_color = 'Black'
+                        if ship.color == 'Yellow' and ship != CHOSEN_SHIP:
+                            ship.color = (100,100,100)
                             ship.selected = False
                 # print("here")
                 # if CHOSEN_SHIP != None:

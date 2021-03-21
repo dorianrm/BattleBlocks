@@ -35,6 +35,9 @@ class Ship:
             for col,row in self.coords:
                 grid[col][row].color = (100,100,100)
         return grid
+
+    def set_coords(self, coordinates):
+        self.coords = coordinates
     
     
     
