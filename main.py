@@ -19,6 +19,8 @@ GRID_COLOR = (100,100,255)
 SHIPS = {}
 ICONS = {}
 CHOSEN_SHIP = None
+UNSELECT = (100,100,100)
+SELECT = "Yellow"
 
 
 def init_grid():
@@ -99,7 +101,7 @@ def draw_destroyer(win, size, x, y, s, player):
     if destroyer == None:
         destroyer = pygame.Rect(x, y, l, size)
         SHIPS[player]['destroyer'].icon = destroyer
-    color = SHIPS[player]['destroyer'].color
+    color = SHIPS[player]['destroyer'].icon_color
     pygame.draw.rect(win, color, destroyer)
 
     outline_color = SHIPS[player]['destroyer'].outline_color
@@ -117,7 +119,7 @@ def draw_submarine(win, size, x, y, s, player):
     if submarine == None:
         submarine = pygame.Rect(x, y, l, size)
         SHIPS[player]['submarine'].icon = submarine
-    color = SHIPS[player]['submarine'].color
+    color = SHIPS[player]['submarine'].icon_color
     pygame.draw.rect(win, color, submarine)
 
     outline_color = SHIPS[player]['submarine'].outline_color
@@ -135,7 +137,7 @@ def draw_cruiser(win, size, x, y, s, player):
     if cruiser == None:
         cruiser = pygame.Rect(x, y, l, size)
         SHIPS[player]['cruiser'].icon = cruiser
-    color = SHIPS[player]['cruiser'].color
+    color = SHIPS[player]['cruiser'].icon_color
     pygame.draw.rect(win, color, cruiser)
 
     outline_color = SHIPS[player]['cruiser'].outline_color
@@ -153,8 +155,7 @@ def draw_battleship(win, size, x, y, s, player):
     if battleship == None:
         battleship = pygame.Rect(x, y, l, size)
         SHIPS[player]['battleship'].icon = battleship
-    color = SHIPS[player]['battleship'].color
-    print(color)
+    color = SHIPS[player]['battleship'].icon_color
     pygame.draw.rect(win, color, battleship)
 
     outline_color = SHIPS[player]['battleship'].outline_color
@@ -173,7 +174,7 @@ def draw_carrier(win, size, x, y, s, player):
         carrier = pygame.Rect(x, y, l, size)
         SHIPS[player]['carrier'].icon = carrier
 
-    color = SHIPS[player]['carrier'].color
+    color = SHIPS[player]['carrier'].icon_color
     pygame.draw.rect(win, color, carrier)
 
     outline_color = SHIPS[player]['carrier'].outline_color
@@ -216,8 +217,6 @@ def draw_ships(win, grid):
     #create rect for background color
     for ship in SHIPS['user'].values():
         grid = ship.draw(grid)
-        if len(ship.coords) != 0:
-            print(ship.name, ship.coords)
     return grid
 
 def draw_joystick(win):
@@ -293,12 +292,26 @@ def event_check(win, run, user_grid, opp_grid):
                             size = CHOSEN_SHIP.size
                             y,x = row, col
                             for i in range(size):
-                                user_grid[x][y].color = (100,100,100)
+                                # user_grid[x][y].color = SELECT
                                 CHOSEN_SHIP.coords.append((x,y))
                                 y += 1
                                 coords.append((x,y))
                             CHOSEN_SHIP.placed = True
-                            CHOSEN_SHIP = None
+                            CHOSEN_SHIP.color = SELECT
+                            # CHOSEN_SHIP.set_ship_selected(user_grid)
+                            # CHOSEN_SHIP = None
+                    else:
+                        for ship in SHIPS['user'].values():
+                            if (col, row) in ship.coords:
+                                CHOSEN_SHIP = ship
+                                ship.icon_color = SELECT
+                                ship.color = SELECT
+                                # ship.set_ship_selected(user_grid)
+                            else:
+                                ship.icon_color = UNSELECT
+                                ship.color = UNSELECT
+                                # ship.set_ship_unselected(user_grid)
+                                
                 # opp grid area
                 else:
                     for row in opp_grid:
@@ -311,16 +324,23 @@ def event_check(win, run, user_grid, opp_grid):
             else:
                 for ship in SHIPS['user'].values():
                     if ship.get_icon().collidepoint(mouse_pos):
-                        ship.color = 'Yellow'
+                        ship.icon_color = SELECT
                         ship.selected = True
                         CHOSEN_SHIP = ship
-                        break
+                        if CHOSEN_SHIP.placed:
+                            CHOSEN_SHIP.color = SELECT
+                    else:
+                        ship.icon_color = UNSELECT
+                        ship.selected = False
+                        if ship.placed:
+                            ship.color = UNSELECT
+                        
 
-                if CHOSEN_SHIP:
-                    for ship in SHIPS['user'].values():
-                        if ship.color == 'Yellow' and ship != CHOSEN_SHIP:
-                            ship.color = (100,100,100)
-                            ship.selected = False
+                # if CHOSEN_SHIP:
+                #     for ship in SHIPS['user'].values():
+                #         if ship.icon_color == SELECT and ship != CHOSEN_SHIP:
+                #             ship.icon_color = (100,100,100)
+                #             ship.selected = False
                 # print("here")
                 # if CHOSEN_SHIP != None:
                 #     print(CHOSEN_SHIP)
@@ -343,8 +363,10 @@ def main():
         # if counter == 100:
         #     SHIPS['user']['destroyer'].coords = [(1,1), (1,2)]
         ship = SHIPS['user']['destroyer']
-        print(ship.coords)
-        print(ship.placed)
+        # print(ship.coords)
+        # print(ship.placed)
+
+
 
 
 

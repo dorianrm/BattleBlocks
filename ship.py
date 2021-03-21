@@ -8,6 +8,7 @@ class Ship:
 
         self.hits = 0
         self.icon = None
+        self.icon_color = (100,100,100)
         self.outline_color = 'Black'
         self.selected = False
         self.placed = False
@@ -33,11 +34,19 @@ class Ship:
     def draw(self, grid):
         if len(self.coords) > 0:
             for col,row in self.coords:
-                grid[col][row].color = (100,100,100)
+                grid[col][row].color = self.color
         return grid
 
     def set_coords(self, coordinates):
         self.coords = coordinates
+    
+    def set_ship_selected(self, grid):
+        for x,y in self.coords:
+            grid[x][y].color = "Yellow"
+    
+    def set_ship_unselected(self, grid):
+        for x,y in self.coords:
+            grid[x][y].color = (100,100,100)
     
     
     
