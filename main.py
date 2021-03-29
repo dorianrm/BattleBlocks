@@ -2,6 +2,7 @@ import pygame
 from cube import Cube
 import string
 from ship import Ship
+from button import Button
 
 pygame.font.init()
 
@@ -17,10 +18,15 @@ COLS = 11
 C_SIZE = 59
 GRID_COLOR = (100,100,255)
 SHIPS = {}
-ICONS = {}
 CHOSEN_SHIP = None
 UNSELECT = (100,100,100)
 SELECT = "Yellow"
+# UP_B, DOWN_B, LEFT_B, RIGHT_B, ROTATE_B = None, None, None, None, None
+UP_B = Button('', 'p', "Yellow", ( (455, HEIGHT-65), (485, HEIGHT-65), (470, HEIGHT-85) ))
+DOWN_B = Button('', 'p', "Yellow", ( (455, HEIGHT-25), (485, HEIGHT-25), (470, HEIGHT-5) ))
+LEFT_B = Button('', 'p', "Yellow", ( (430, HEIGHT-45), (450, HEIGHT-60), (450, HEIGHT-30) ))
+RIGHT_B = Button('', 'p', "Yellow", ( (490, HEIGHT-60), (510, HEIGHT-45), (490, HEIGHT-30) ))
+ROTATE_B = Button('', 'c', "Yellow", (470, HEIGHT-45))
 
 
 def init_grid():
@@ -223,20 +229,26 @@ def draw_joystick(win):
     #inside side = 30
     # 
 
-    # up
-    pygame.draw.polygon(win, 'Yellow', ( (455, HEIGHT-65), (485, HEIGHT-65), (470, HEIGHT-85) ))
+    UP_B.draw(win)
+    DOWN_B.draw(win)
+    LEFT_B.draw(win)
+    RIGHT_B.draw(win)
+    ROTATE_B.draw(win)
 
-    #right
-    pygame.draw.polygon(win, 'Yellow', ( (490, HEIGHT-60), (510, HEIGHT-45), (490, HEIGHT-30) ))
+    # # up
+    # pygame.draw.polygon(win, 'Yellow', ( (455, HEIGHT-65), (485, HEIGHT-65), (470, HEIGHT-85) ))
 
-    # down
-    pygame.draw.polygon(win, 'Yellow', ( (455, HEIGHT-25), (485, HEIGHT-25), (470, HEIGHT-5) ))
+    # #right
+    # pygame.draw.polygon(win, 'Yellow', ( (490, HEIGHT-60), (510, HEIGHT-45), (490, HEIGHT-30) ))
 
-    #left
-    pygame.draw.polygon(win, 'Yellow', ( (430, HEIGHT-45), (450, HEIGHT-60), (450, HEIGHT-30) ))
+    # # down
+    # pygame.draw.polygon(win, 'Yellow', ( (455, HEIGHT-25), (485, HEIGHT-25), (470, HEIGHT-5) ))
 
-    #center
-    pygame.draw.circle(win, 'Yellow', (470, HEIGHT-45), 15)
+    # #left
+    # pygame.draw.polygon(win, 'Yellow', ( (430, HEIGHT-45), (450, HEIGHT-60), (450, HEIGHT-30) ))
+
+    # #center
+    # pygame.draw.circle(win, 'Yellow', (470, HEIGHT-45), 15)
 
 
     #lock button
@@ -341,7 +353,15 @@ def event_check(win, run, user_grid, opp_grid):
             
             # joystick area
             else:
-                pass
+                if CHOSEN_SHIP and CHOSEN_SHIP.placed:
+                    if UP_B.collidepoint(mouse_pos):
+                        print("before: ", CHOSEN_SHIP.coords)
+                        for x,y in CHOSEN_SHIP.coords:
+                            # check if out of bounds
+                            y += 1
+                        print("after: ", CHOSEN_SHIP.coords)
+                        
+                
 
             if CHOSEN_SHIP != None:
                 print(CHOSEN_SHIP.name)
@@ -355,7 +375,6 @@ def main():
     opp_grid = init_grid()
     init_ships_dict()
     run = True
-    counter = 0
     
     while run:
         user_grid = draw_window(win, user_grid, opp_grid)
