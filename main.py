@@ -3,6 +3,7 @@ from cube import Cube
 import string
 from ship import Ship
 from button import Button
+import math
 
 pygame.font.init()
 
@@ -21,19 +22,26 @@ SHIPS = {}
 CHOSEN_SHIP = None
 UNSELECT = (100,100,100)
 SELECT = "Yellow"
-# UP_B, DOWN_B, LEFT_B, RIGHT_B, ROTATE_B = None, None, None, None, None
-UP_B = Button('', 'p', "Yellow", ( (455, HEIGHT-65), (485, HEIGHT-65), (470, HEIGHT-85) ))
-DOWN_B = Button('', 'p', "Yellow", ( (455, HEIGHT-25), (485, HEIGHT-25), (470, HEIGHT-5) ))
-LEFT_B = Button('', 'p', "Yellow", ( (430, HEIGHT-45), (450, HEIGHT-60), (450, HEIGHT-30) ))
-RIGHT_B = Button('', 'p', "Yellow", ( (490, HEIGHT-60), (510, HEIGHT-45), (490, HEIGHT-30) ))
-ROTATE_B = Button('', 'c', "Yellow", (470, HEIGHT-45))
-
+UP_B = None
+DOWN_B = None
+LEFT_B = None
+RIGHT_B = None
+ROTATE_B = None
 
 def init_grid():
     grid = []
     for i in range(COLS):
         grid.append([Cube(i,j) for j in range(ROWS)])
     return grid
+
+def init_buttons():
+    global UP_B, DOWN_B, LEFT_B, RIGHT_B, ROTATE_B
+    UP_B = Button('', 'p', "Yellow", ( (455, HEIGHT-65), (485, HEIGHT-65), (470, HEIGHT-85) ))
+    DOWN_B = Button('', 'p', "Yellow", ( (455, HEIGHT-25), (485, HEIGHT-25), (470, HEIGHT-5) ))
+    LEFT_B = Button('', 'p', "Yellow", ( (430, HEIGHT-45), (450, HEIGHT-60), (450, HEIGHT-30) ))
+    RIGHT_B = Button('', 'p', "Yellow", ( (490, HEIGHT-60), (510, HEIGHT-45), (490, HEIGHT-30) ))
+    ROTATE_B = Button('', 'c', "Yellow", (470, HEIGHT-45))
+    
 
 def draw_cubes(win, user_grid, opp_grid):
     c_w, c_h = G_WIDTH // COLS, G_HEIGHT // ROWS
@@ -288,8 +296,8 @@ def event_check(win, run, user_grid, opp_grid):
 
         mouse_pos = pygame.mouse.get_pos()
         row, col = get_mouse_pos(mouse_pos)
-        print(mouse_pos)
-        print(col, row)
+        # print(mouse_pos)
+        # print(col, row)
 
         if pygame.mouse.get_pressed()[0]:
 
@@ -299,16 +307,31 @@ def event_check(win, run, user_grid, opp_grid):
                 if mouse_pos[0] < 700:
                     if CHOSEN_SHIP and not CHOSEN_SHIP.check_placed():
                         #place ship in grid
+                        # if row + CHOSEN_SHIP.size <= ROWS:
+                        #     coords = []
+                        #     size = CHOSEN_SHIP.size
+                        #     y,x = row, col
+                        #     for i in range(size):
+                        #         CHOSEN_SHIP.coords.append((x,y))
+                        #         y += 1
+                        #         coords.append((x,y))
+                        #     CHOSEN_SHIP.placed = True
+                        #     CHOSEN_SHIP.color = SELECT
                         if row + CHOSEN_SHIP.size <= ROWS:
                             coords = []
                             size = CHOSEN_SHIP.size
                             y,x = row, col
+                            overlap_bool = False
                             for i in range(size):
-                                CHOSEN_SHIP.coords.append((x,y))
-                                y += 1
+                                if user_grid[x][y].color == UNSELECT:
+                                    overlap_bool = True
+                                    break
                                 coords.append((x,y))
-                            CHOSEN_SHIP.placed = True
-                            CHOSEN_SHIP.color = SELECT
+                                y += 1
+                            if not overlap_bool:
+                                CHOSEN_SHIP.coords = coords
+                                CHOSEN_SHIP.placed = True
+                                CHOSEN_SHIP.color = SELECT
 
                     else:
                         chosen_counter = 0
@@ -333,7 +356,7 @@ def event_check(win, run, user_grid, opp_grid):
                                 cube.color = 'Red'
 
             # button / icon area
-            elif mouse_pos[0] < 450:
+            elif mouse_pos[0] < 420:
                 chosen_counter = 0
                 for ship in SHIPS['user'].values():
                     if ship.get_icon().collidepoint(mouse_pos):
@@ -354,17 +377,77 @@ def event_check(win, run, user_grid, opp_grid):
             # joystick area
             else:
                 if CHOSEN_SHIP and CHOSEN_SHIP.placed:
-                    if UP_B.collidepoint(mouse_pos):
-                        print("before: ", CHOSEN_SHIP.coords)
+                    new_coords = []
+                    overflow_bool = False
+                    movement_bool = False
+
+
+                    if UP_B.polygon_collision(mouse_pos):
+                        print("Up button pressed")
+                        movement_bool = True
                         for x,y in CHOSEN_SHIP.coords:
-                            # check if out of bounds
-                            y += 1
-                        print("after: ", CHOSEN_SHIP.coords)
+                            if y-1 < 1 or user_grid[x][y-1].color == UNSELECT:
+                                overflow_bool = True
+                                break
+                            new_coords.append((x,y-1))
+
+
+                    elif DOWN_B.polygon_collision(mouse_pos):
+                        print("Down button pressed")
+                        movement_bool = True
+                        for x,y in CHOSEN_SHIP.coords:
+                            if y+1 >= ROWS or user_grid[x][y+1].color == UNSELECT:
+                                overflow_bool = True
+                                break
+                            new_coords.append((x,y+1))
+
+                    elif LEFT_B.polygon_collision(mouse_pos):
+                        print("Left button pressed")
+                        movement_bool = True
+                        for x,y in CHOSEN_SHIP.coords:
+                            if x-1 < 1 or user_grid[x-1][y].color == UNSELECT:
+                                overflow_bool = True
+                                break
+                            new_coords.append((x-1,y))
+
+                    elif RIGHT_B.polygon_collision(mouse_pos):
+                        print("Right button pressed")
+                        movement_bool = True
+                        for x,y in CHOSEN_SHIP.coords:
+                            if x+1 >= COLS or user_grid[x+1][y].color == UNSELECT:
+                                overflow_bool = True
+                                break
+                            new_coords.append((x+1,y))
+                    
+                    elif ROTATE_B.circle_collision(mouse_pos):
+                        print("Rotate button pressed")
+                        movement_bool = True
+                        ox, oy = CHOSEN_SHIP.coords[0]
+                        angle = math.pi/2 #90 degrees
+                        new_coords.append((ox,oy))
+                        for px, py in CHOSEN_SHIP.coords[1:]:
+                            qx = int( ox + math.cos(angle) * (px - ox) - math.sin(angle) * (py - oy) )
+                            qy = int( oy + math.sin(angle) * (px - ox) + math.cos(angle) * (py - oy) )
+                            if qx < 1 or qx >= COLS or qy < 1 or qy >= ROWS or user_grid[qx][qy].color == UNSELECT:
+                                overflow_bool = True
+                                break
+                            new_coords.append((qx,qy))
+
+
+
+                    print("before: ", CHOSEN_SHIP.coords)
+                    if movement_bool and not overflow_bool:
+                        for x,y in CHOSEN_SHIP.coords:
+                            user_grid[x][y].color = (42, 179, 247)
+                        CHOSEN_SHIP.coords = new_coords
+                    print("after: ", CHOSEN_SHIP.coords)
+
+
                         
                 
 
-            if CHOSEN_SHIP != None:
-                print(CHOSEN_SHIP.name)
+            # if CHOSEN_SHIP != None:
+            #     print(CHOSEN_SHIP.name)
 
     return run
 
@@ -374,6 +457,7 @@ def main():
     user_grid = init_grid()
     opp_grid = init_grid()
     init_ships_dict()
+    init_buttons()
     run = True
     
     while run:
@@ -382,14 +466,9 @@ def main():
         # counter += 1
         # if counter == 100:
         #     SHIPS['user']['destroyer'].coords = [(1,1), (1,2)]
-        ship = SHIPS['user']['destroyer']
+        # ship = SHIPS['user']['destroyer']
         # print(ship.coords)
         # print(ship.placed)
-
-
-
-
-
 
 
 main()
