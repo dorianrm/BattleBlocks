@@ -2,7 +2,9 @@ class Game:
     def __init__(self, id):
         self.p1Went = False
         self.p2Went = False
-        self.ready = False
+        self.p1Turn = False
+        self.p2Turn = False
+        self.ready = False #both p's conn, ready to play
         self.id = id
         self.moves = [None, None]
         self.wins = [0,0] #p1,p2

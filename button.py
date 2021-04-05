@@ -15,10 +15,17 @@ class Button:
     #     win.blit(text, (self.x + round(self.width/2) - round(text.get_width()/2), self.y + round(self.height/2) - round(text.get_height()/2)))
 
     def draw(self, win):
+        font = pygame.font.SysFont('Arial', 17)
+        text = font.render(self.text, 1, (0,0,0))
         if self.shape == 'p':
             pygame.draw.polygon(win, self.color, self.coords)
+            x = round((self.coords[0][0]+self.coords[1][0]+self.coords[2][0])/3)
+            y = round((self.coords[0][1]+self.coords[1][1]+self.coords[2][1])/3)
+            win.blit(text, (x - round(text.get_width()/2), y - round(text.get_height()/2)))
         else:
             pygame.draw.circle(win, self.color, self.coords, 15)
+            x, y = self.coords[0], self.coords[1]
+            win.blit(text, (x - round(text.get_width()/2), y - round(text.get_height()/2)))
         
 
     def polygon_collision(self, pos):

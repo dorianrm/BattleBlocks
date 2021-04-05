@@ -12,21 +12,19 @@ WIDTH = 1400
 HEIGHT = 800
 G_WIDTH = 649
 G_HEIGHT = 649
-G_X = 25
-G_Y = 61
+G_X = 25 # grid x offset
+G_Y = 61 # grid y offset
 ROWS = 11
 COLS = 11
 C_SIZE = 59
 GRID_COLOR = (100,100,255)
 SHIPS = {}
-CHOSEN_SHIP = None
+CHOSEN_SHIP = None 
 UNSELECT = (100,100,100)
 SELECT = "Yellow"
-UP_B = None
-DOWN_B = None
-LEFT_B = None
-RIGHT_B = None
-ROTATE_B = None
+UP_B, DOWN_B, LEFT_B, RIGHT_B, ROTATE_B = None, None, None, None, None
+P2LOCK = False
+
 
 def init_grid():
     grid = []
@@ -34,25 +32,9 @@ def init_grid():
         grid.append([Cube(i,j) for j in range(ROWS)])
     return grid
 
-def init_buttons():
-    global UP_B, DOWN_B, LEFT_B, RIGHT_B, ROTATE_B
-    UP_B = Button('', 'p', "Yellow", ( (455, HEIGHT-65), (485, HEIGHT-65), (470, HEIGHT-85) ))
-    DOWN_B = Button('', 'p', "Yellow", ( (455, HEIGHT-25), (485, HEIGHT-25), (470, HEIGHT-5) ))
-    LEFT_B = Button('', 'p', "Yellow", ( (430, HEIGHT-45), (450, HEIGHT-60), (450, HEIGHT-30) ))
-    RIGHT_B = Button('', 'p', "Yellow", ( (490, HEIGHT-60), (510, HEIGHT-45), (490, HEIGHT-30) ))
-    ROTATE_B = Button('', 'c', "Yellow", (470, HEIGHT-45))
-    
-
-def draw_cubes(win, user_grid, opp_grid):
-    c_w, c_h = G_WIDTH // COLS, G_HEIGHT // ROWS
-    for i in range(COLS):
-        for j in range(ROWS):
-            user_grid[i][j].draw(win, c_w, c_h, 25, 61)
-            opp_grid[i][j].draw(win, c_w, c_h, (WIDTH//2)+26, 61)
-
 def init_ships_dict():
 
-    color = (100,100,100)
+    color = UNSELECT
     SHIPS['user'] = {
         'carrier': Ship('carrier', color, 5),
         'battleship': Ship('battleship', color, 4),
@@ -68,6 +50,21 @@ def init_ships_dict():
         'submarine': Ship('submarine', color, 3),
         'destroyer': Ship('destroyer', color, 2)
     }
+
+def init_buttons():
+    global UP_B, DOWN_B, LEFT_B, RIGHT_B, ROTATE_B
+    UP_B = Button('↑', 'p', "Yellow", ( (455, HEIGHT-65), (485, HEIGHT-65), (470, HEIGHT-85) ))
+    DOWN_B = Button('↓', 'p', "Yellow", ( (455, HEIGHT-25), (485, HEIGHT-25), (470, HEIGHT-5) ))
+    LEFT_B = Button('←', 'p', "Yellow", ( (430, HEIGHT-45), (450, HEIGHT-60), (450, HEIGHT-30) ))
+    RIGHT_B = Button('→', 'p', "Yellow", ( (490, HEIGHT-60), (510, HEIGHT-45), (490, HEIGHT-30) ))
+    ROTATE_B = Button('⤵︎', 'c', "Yellow", (470, HEIGHT-45))
+    
+def draw_cubes(win, user_grid, opp_grid):
+    c_w, c_h = G_WIDTH // COLS, G_HEIGHT // ROWS
+    for i in range(COLS):
+        for j in range(ROWS):
+            user_grid[i][j].draw(win, c_w, c_h, 25, 61)
+            opp_grid[i][j].draw(win, c_w, c_h, (WIDTH//2)+26, 61)
 
 def draw_board(win):
     x, y = G_X, G_Y
@@ -105,8 +102,6 @@ def draw_board(win):
         text = font.render(string.ascii_lowercase[i-1], 1, (0,0,0))
         win.blit(text, (x_o+(C_SIZE//2 - text.get_width()//2), y+(C_SIZE//2-text.get_height()//2)))
         y += C_SIZE
-
-
 
 
 def draw_destroyer(win, size, x, y, s, player):
@@ -235,29 +230,11 @@ def draw_ships(win, grid):
 
 def draw_joystick(win):
     #inside side = 30
-    # 
-
     UP_B.draw(win)
     DOWN_B.draw(win)
     LEFT_B.draw(win)
     RIGHT_B.draw(win)
     ROTATE_B.draw(win)
-
-    # # up
-    # pygame.draw.polygon(win, 'Yellow', ( (455, HEIGHT-65), (485, HEIGHT-65), (470, HEIGHT-85) ))
-
-    # #right
-    # pygame.draw.polygon(win, 'Yellow', ( (490, HEIGHT-60), (510, HEIGHT-45), (490, HEIGHT-30) ))
-
-    # # down
-    # pygame.draw.polygon(win, 'Yellow', ( (455, HEIGHT-25), (485, HEIGHT-25), (470, HEIGHT-5) ))
-
-    # #left
-    # pygame.draw.polygon(win, 'Yellow', ( (430, HEIGHT-45), (450, HEIGHT-60), (450, HEIGHT-30) ))
-
-    # #center
-    # pygame.draw.circle(win, 'Yellow', (470, HEIGHT-45), 15)
-
 
     #lock button
     lock_btn = pygame.Rect(540, HEIGHT-76, 120, 62)
@@ -306,17 +283,6 @@ def event_check(win, run, user_grid, opp_grid):
                 # user grid area
                 if mouse_pos[0] < 700:
                     if CHOSEN_SHIP and not CHOSEN_SHIP.check_placed():
-                        #place ship in grid
-                        # if row + CHOSEN_SHIP.size <= ROWS:
-                        #     coords = []
-                        #     size = CHOSEN_SHIP.size
-                        #     y,x = row, col
-                        #     for i in range(size):
-                        #         CHOSEN_SHIP.coords.append((x,y))
-                        #         y += 1
-                        #         coords.append((x,y))
-                        #     CHOSEN_SHIP.placed = True
-                        #     CHOSEN_SHIP.color = SELECT
                         if row + CHOSEN_SHIP.size <= ROWS:
                             coords = []
                             size = CHOSEN_SHIP.size
@@ -434,17 +400,12 @@ def event_check(win, run, user_grid, opp_grid):
                             new_coords.append((qx,qy))
 
 
-
                     print("before: ", CHOSEN_SHIP.coords)
                     if movement_bool and not overflow_bool:
                         for x,y in CHOSEN_SHIP.coords:
                             user_grid[x][y].color = (42, 179, 247)
                         CHOSEN_SHIP.coords = new_coords
                     print("after: ", CHOSEN_SHIP.coords)
-
-
-                        
-                
 
             # if CHOSEN_SHIP != None:
             #     print(CHOSEN_SHIP.name)
@@ -463,13 +424,6 @@ def main():
     while run:
         user_grid = draw_window(win, user_grid, opp_grid)
         event_check(win, run, user_grid, opp_grid)
-        # counter += 1
-        # if counter == 100:
-        #     SHIPS['user']['destroyer'].coords = [(1,1), (1,2)]
-        # ship = SHIPS['user']['destroyer']
-        # print(ship.coords)
-        # print(ship.placed)
-
 
 main()
 
