@@ -1,11 +1,9 @@
 import pygame
-from network import Network
-from game import Game
 from cube import Cube
+import string
 from ship import Ship
 from button import Button
 import math
-import string
 
 pygame.font.init()
 
@@ -26,7 +24,6 @@ UNSELECT = (100,100,100)
 SELECT = "Yellow"
 UP_B, DOWN_B, LEFT_B, RIGHT_B, ROTATE_B = None, None, None, None, None
 LOCK_B = None
-READY = False
 P2LOCK = False
 
 
@@ -62,7 +59,7 @@ def init_buttons():
     LEFT_B = Button('←', 'p', "Yellow", ( (430, HEIGHT-45), (450, HEIGHT-60), (450, HEIGHT-30) ))
     RIGHT_B = Button('→', 'p', "Yellow", ( (490, HEIGHT-60), (510, HEIGHT-45), (490, HEIGHT-30) ))
     ROTATE_B = Button('R', 'c', "Yellow", (470, HEIGHT-45))
-    LOCK_B = Button("Lock", 'r', "White", (540, HEIGHT-76, 120, 62) )
+    LOCK_B = Button("Lock", 'r', "Yellow", (540, HEIGHT-76, 120, 62) )
     
 def draw_cubes(win, user_grid, opp_grid):
     c_w, c_h = G_WIDTH // COLS, G_HEIGHT // ROWS
@@ -259,7 +256,7 @@ def get_mouse_pos(pos):
     return row,col  
 
 def event_check(win, run, user_grid, opp_grid):
-    global CHOSEN_SHIP, READY
+    global CHOSEN_SHIP
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
@@ -402,22 +399,10 @@ def event_check(win, run, user_grid, opp_grid):
                         CHOSEN_SHIP.coords = new_coords
                     print("after: ", CHOSEN_SHIP.coords)
 
-                elif LOCK_B.rect_collision(mouse_pos) and ships_placed_check() and not READY:
-                    print("LOCKING -----")
-                    LOCK_B.color = "Pink"
-                    READY = True
             # if CHOSEN_SHIP != None:
             #     print(CHOSEN_SHIP.name)
 
     return run
-
-def ships_placed_check():
-    count = 0
-    for ship in SHIPS['user'].values():
-        if ship.placed:
-            count += 1
-    return count == 5
-        
 
 def main():
     win = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -427,27 +412,10 @@ def main():
     init_ships_dict()
     init_buttons()
     run = True
-    clock = pygame.time.Clock()
     
-    # n = Network()
-    # player = int(n.getP())
-    # print("You are player: ", player)
-    
-    # while run:
-    #     clock.tick(60)
-    #     try:
-    #         game = n.send("get")
-    #     except:
-    #         run = False
-    #         print("Couldn't get game")
-    #         break
-
     while run:
-        clock.tick(60)
-
         user_grid = draw_window(win, user_grid, opp_grid)
         event_check(win, run, user_grid, opp_grid)
-        ships_placed_check()
 
 main()
 

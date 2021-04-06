@@ -4,9 +4,9 @@ import pickle
 from game import Game
 
 
-# server = "192.168.1.72" #local
+server = "192.168.1.72" #local
 # server = "98.155.155.206" #public
-server = "0.0.0.0"
+# server = "0.0.0.0"
 port = 5555
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -47,10 +47,8 @@ def threaded_client(conn, p, gameId):
                 if not data:
                     break
                 else:
-                    if data == "reset":
-                        game.resetWent()
-                    elif data != "get":
-                        #move
+                    if data != "get":
+                        #guess
                         game.play(p, data)
                     reply = game
                     conn.sendall(pickle.dumps(reply))

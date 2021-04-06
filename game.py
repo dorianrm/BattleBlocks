@@ -17,6 +17,7 @@ class Game:
         return self.moves[p]
 
     def play(self, player, move):
+        # move = coords (tuple)
         self.moves[player] = move
         if player == 0:
             self.p1Went = True

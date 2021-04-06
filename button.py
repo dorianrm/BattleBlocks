@@ -8,21 +8,23 @@ class Button:
         self.color = color
         self.shape = shape
     
-    # def draw(self, win):
-    #     pygame.draw.rect(win, self.color, (self.x, self.y, self.width, self.height))
-    #     font = pygame.font.SysFont("comicsans", 40)
-    #     text = font.render(self.text, 1, (255,255,255))
-    #     win.blit(text, (self.x + round(self.width/2) - round(text.get_width()/2), self.y + round(self.height/2) - round(text.get_height()/2)))
-
     def draw(self, win):
-        font = pygame.font.SysFont('Arial', 17)
-        text = font.render(self.text, 1, (0,0,0))
         if self.shape == 'p':
+            font = pygame.font.SysFont('Arial', 17)
+            text = font.render(self.text, 1, (0,0,0))
             pygame.draw.polygon(win, self.color, self.coords)
             x = round((self.coords[0][0]+self.coords[1][0]+self.coords[2][0])/3)
             y = round((self.coords[0][1]+self.coords[1][1]+self.coords[2][1])/3)
             win.blit(text, (x - round(text.get_width()/2), y - round(text.get_height()/2)))
+        elif self.shape == 'r':
+            x, y, w, h = self.coords[0], self.coords[1], self.coords[2], self.coords[3]
+            font = pygame.font.SysFont('Arial', 30)
+            text = font.render(self.text, 1, (0,0,0))
+            pygame.draw.rect(win, self.color, self.coords)
+            win.blit(text, ( x+(w/2) - round(text.get_width()/2), y+(h/2) - round(text.get_height()/2) ))
         else:
+            font = pygame.font.SysFont('Arial', 17)
+            text = font.render(self.text, 1, (0,0,0))
             pygame.draw.circle(win, self.color, self.coords, 15)
             x, y = self.coords[0], self.coords[1]
             win.blit(text, (x - round(text.get_width()/2), y - round(text.get_height()/2)))
@@ -45,12 +47,6 @@ class Button:
         c_x, c_y = self.coords[0], self.coords[1]
         dis = math.sqrt( ((x-c_x)**2) + ((y-c_y)**2) )
         return dis <= 15
-
-
-    #check if within button
-    # def click(self, pos):
-    #     x1 = pos[0]
-    #     y1 = pos[1]
-    #     if self.x <= x1 <+ self.x + self.width and self.y <= y1 <= self.y + self.height:
-    #         return True
-    #     return False
+    
+    def rect_collision(self, pos):
+        return pygame.Rect(self.coords).collidepoint(pos)
