@@ -5,6 +5,7 @@ class Game:
         self.p1Turn = False
         self.p2Turn = False
         self.ready = False #both p's conn, ready to play
+        self.pLock = [False, False]
         self.id = id
         self.moves = [None, None]
         self.wins = [0,0] #p1,p2

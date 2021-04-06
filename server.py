@@ -47,7 +47,9 @@ def threaded_client(conn, p, gameId):
                 if not data:
                     break
                 else:
-                    if data != "get":
+                    if data == "ready":
+                        game.pLock[p] = True
+                    elif data != "get":
                         #guess
                         game.play(p, data)
                     reply = game

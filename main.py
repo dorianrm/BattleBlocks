@@ -91,8 +91,8 @@ def draw_board(win):
     #middle line
     pygame.draw.line(win, 'Black', (700, 0), (700, HEIGHT))
 
-    pygame.draw.rect(win, 'Pink', (x_o, 5, G_WIDTH, 50))
-    pygame.draw.rect(win, 'Pink', (WIDTH-G_WIDTH-x_o, 5, G_WIDTH, 50))
+    # pygame.draw.rect(win, 'Pink', (x_o, 5, G_WIDTH, 50))
+    # pygame.draw.rect(win, 'Pink', (WIDTH-G_WIDTH-x_o, 5, G_WIDTH, 50))
 
 
     #draw coords
@@ -241,14 +241,27 @@ def draw_buttons(win):
     ROTATE_B.draw(win)
     LOCK_B.draw(win)
 
-def draw_window(win, user_grid, opp_grid):
+def draw_text(win, game, player):
+    font = pygame.font. SysFont('Arial', 30)
+
+    #user
+    pygame.draw.rect(win, 'Pink', (G_X, 5, G_WIDTH, 50))
+
+    #opp
+    pygame.draw.rect(win, 'Pink', (WIDTH-G_WIDTH-G_X, 5, G_WIDTH, 50))
+    if (player == 0 and not game.pLock[player+1]) or (player == 1 and not game.pLock[player-1]):
+        status = "Enemy organizing fleet..."
+        text = font.render(status, 1, (0,0,0))
+        win.blit(text, (WIDTH-G_WIDTH-G_X+(G_WIDTH//2) - round(text.get_width()/2), 5+(50//2) - round(text.get_height()/2) ))
+
+def draw_window(win, user_grid, opp_grid, game, player):
     win.fill((180,180,180))
     pygame.display.set_caption('--- Battle Blocks ---')
     draw_cubes(win, user_grid, opp_grid)
     draw_board(win)
     user_grid = draw_ships(win, user_grid)
     draw_buttons(win)
-    # draw_text(surface)
+    draw_text(win, game, player)
     pygame.display.update()
     return user_grid
 
@@ -258,7 +271,7 @@ def get_mouse_pos(pos):
     col = (x - 25) // 60
     return row,col  
 
-def event_check(win, run, user_grid, opp_grid):
+def event_check(win, run, user_grid, opp_grid, n, game, player):
     global CHOSEN_SHIP, READY
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -402,12 +415,14 @@ def event_check(win, run, user_grid, opp_grid):
                         CHOSEN_SHIP.coords = new_coords
                     print("after: ", CHOSEN_SHIP.coords)
 
-                elif LOCK_B.rect_collision(mouse_pos) and ships_placed_check() and not READY:
+                elif LOCK_B.rect_collision(mouse_pos) and ships_placed_check() and not game.pLock[player]:
                     print("LOCKING -----")
                     LOCK_B.color = "Pink"
-                    READY = True
+                    n.send("ready")
             # if CHOSEN_SHIP != None:
             #     print(CHOSEN_SHIP.name)
+        
+
 
     return run
 
@@ -429,24 +444,21 @@ def main():
     run = True
     clock = pygame.time.Clock()
     
-    # n = Network()
-    # player = int(n.getP())
-    # print("You are player: ", player)
+    n = Network()
+    player = int(n.getP())
+    print("You are player: ", player)
     
-    # while run:
-    #     clock.tick(60)
-    #     try:
-    #         game = n.send("get")
-    #     except:
-    #         run = False
-    #         print("Couldn't get game")
-    #         break
-
     while run:
         clock.tick(60)
+        try:
+            game = n.send("get")
+        except:
+            run = False
+            print("Couldn't get game")
+            break
 
-        user_grid = draw_window(win, user_grid, opp_grid)
-        event_check(win, run, user_grid, opp_grid)
+        user_grid = draw_window(win, user_grid, opp_grid, game, player)
+        event_check(win, run, user_grid, opp_grid, n, game, player)
         ships_placed_check()
 
 main()
