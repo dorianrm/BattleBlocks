@@ -4,7 +4,8 @@ import pickle
 from game import Game
 
 
-server = "192.168.1.72" #local
+# server = "192.168.1.72" #local
+server = "192.168.7.137" #local ohio
 # server = "98.155.155.206" #public
 # server = "0.0.0.0"
 port = 5555
