@@ -34,7 +34,6 @@ def init_grid():
     return grid
 
 def init_ships_dict():
-
     color = UNSELECT
     SHIPS['user'] = {
         'carrier': Ship('carrier', color, 5),
@@ -270,28 +269,36 @@ def event_check(win, run, user_grid, opp_grid):
 
         if pygame.mouse.get_pressed()[0]:
 
-            # grid area
+            # grid area - disable this block when playing game
             if mouse_pos[1] <= 710:
                 # user grid area
                 if mouse_pos[0] < 700:
+                    # ship icon selected - not yet placed in grid
                     if CHOSEN_SHIP and not CHOSEN_SHIP.check_placed():
+                        # size of ship exceeds height of grid.
+                        # ships placed vertically with the top at user's mouse location 
                         if row + CHOSEN_SHIP.size <= ROWS:
                             coords = []
                             size = CHOSEN_SHIP.size
                             y,x = row, col
                             overlap_bool = False
+                            
+                            #check if placing ship will overlap another placed ship
                             for i in range(size):
                                 if user_grid[x][y].color == UNSELECT:
                                     overlap_bool = True
                                     break
                                 coords.append((x,y))
                                 y += 1
+
+                            # Sucessfully placed - update params of ship 
                             if not overlap_bool:
                                 CHOSEN_SHIP.coords = coords
                                 CHOSEN_SHIP.placed = True
                                 CHOSEN_SHIP.color = SELECT
 
                     else:
+                        # check if mouse coords is selecting placed ship
                         chosen_counter = 0
                         for ship in SHIPS['user'].values():
                             if (col, row) in ship.coords:
@@ -300,12 +307,15 @@ def event_check(win, run, user_grid, opp_grid):
                                 ship.icon_color = SELECT
                                 ship.color = SELECT
                             else:
+                                # Unselect all other ships not selected by mouse
                                 ship.icon_color = UNSELECT
                                 ship.color = UNSELECT
+                        # No ship selected - unselect prev chosen ship
                         if chosen_counter != 1:
                             CHOSEN_SHIP = None
                                 
                 # opp grid area
+                # update code here for game being played
                 else:
                     for row in opp_grid:
                         for cube in row:
