@@ -53,6 +53,8 @@ def threaded_client(conn, p, gameId):
                     elif data != "get":
                         #guess
                         game.play(p, data)
+                        print("[INFO] move = ", data)
+                        game.selection[p] = data
                     reply = game
                     conn.sendall(pickle.dumps(reply))
             else:

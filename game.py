@@ -5,21 +5,17 @@ class Game:
         self.p1Turn = False
         self.p2Turn = False
         self.ready = False #both p's conn, ready to play
+        self.inProgress = False
         self.pLock = [False, False]
         self.id = id
         self.moves = [None, None]
         self.wins = [0,0] #p1,p2
+        self.selection = [None, None]
+        self.testing = "test msg here"
 
-    def get_player_moves(self, p):
-        """
-        :param p: [0,1]
-        :return: Move
-        """
-        return self.moves[p]
-
-    def play(self, player, move):
-        # move = coords (tuple)
-        self.moves[player] = move
+    def play(self, player, coordinate):
+        # coordinate = coords (tuple)
+        # coordinate is checked client side before send
         if player == 0:
             self.p1Went = True
         else:
