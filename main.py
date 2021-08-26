@@ -463,9 +463,9 @@ def event_check(win, run, user_grid, opp_grid, n, game, player):
             # opp grid area
             # update code here for game being played
             else:
-                if game.Turn[player]:
-                    for row in opp_grid:
-                        for cube in row:
+                if game.Turn[player] and game.ready:
+                    for row in opp_grid[1:]:
+                        for cube in row[1:]:
                             selection = (cube.col, cube.row)
                             if cube.get_obj().collidepoint(mouse_pos) and selection not in MOVES:
                                 #valid shot selection
