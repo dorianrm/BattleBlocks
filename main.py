@@ -7,6 +7,7 @@ from button import Button
 import math
 import string
 import sys
+import json
 
 pygame.font.init()
 
@@ -456,7 +457,13 @@ def event_check(win, run, user_grid, opp_grid, n, game, player):
                     elif LOCK_B.rect_collision(mouse_pos) and ships_placed_check() and not game.pLock[player]:
                         print("LOCKING -----")
                         LOCK_B.color = "Pink"
-                        n.send("ready")
+                        ship_coords = build_coords_data()
+                        # my_dict = json.loads(ship_coords)
+                        # print("my_dict: ", my_dict)
+                        # print("type of my_dict: ", type(my_dict))
+                        # ship_coords_string = ''.join(ship_coords)
+                        # print(ship_coords_string)
+                        n.send("r"+ship_coords)
 
             # opp grid area
             # update code here for game being played
@@ -484,6 +491,14 @@ def ships_placed_check():
         if ship.placed:
             count += 1
     return count == 5
+
+def build_coords_data():
+    coords_map = {}
+    for ship in SHIPS['user'].values():
+        coords_map[ship.name] = ship.get_coords()
+    data = json.dumps(coords_map)
+    return data
+
         
 
 def main():

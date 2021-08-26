@@ -2,6 +2,7 @@ import socket
 from _thread import *
 import pickle
 from game import Game
+import json
 
 
 # server = "192.168.1.72" #local
@@ -77,9 +78,14 @@ def threaded_client(conn, p, gameId):
                 if not data:
                     break
                 else:
-                    if data == "ready":
+                    if data[0] == "r":
                         print("[INFO] player " + str(p) + " is ready!")
                         game.pLock[p] = True
+                        data = data[1:]
+                        data = json.loads(data)
+                        game.coords[p] = data
+                        # print("Player " + str(p) +" coords: ", data)
+                        print(game.coords)
                     elif data != "get":
                         # game is being played
                         coords = list( map(int, data.split(",")) )

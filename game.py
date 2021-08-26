@@ -7,6 +7,7 @@ class Game:
         self.id = id
         self.moves = [None, None]
         self.selection = [None, None]
+        self.coords = [None, None]
 
     def play(self, player, coordinate):
         # coordinate = coords (tuple)
