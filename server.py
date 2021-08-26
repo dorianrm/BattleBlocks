@@ -15,7 +15,7 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 try:
     s.bind((server, port))
 except socket.error as e:
-    str(e)
+    print(e)
 
 s.listen(2)
 print("[STARTED] Server Started -----")
@@ -25,6 +25,33 @@ print("[WAITING] Waiting for a connection...")
 # players = [Player(0,0,50,50,(255,0,0)), Player(100,100,50,50,(0,0,255))]
 games = {}
 idCount = 0
+HEADERSIZE = 10
+
+def receive_data(sock):
+    full_msg = b''
+    new_msg = True
+    while True:
+        msg = sock.recv(16)
+        if new_msg:
+            msglen = int(msg[:HEADERSIZE])
+            new_msg = False
+
+        full_msg += msg
+
+        if len(full_msg)-HEADERSIZE == msglen:
+            data = pickle.loads(full_msg[HEADERSIZE:])
+            break
+
+    return data
+
+def send_data(clientsocket, data):
+    data_to_send = pickle.dumps(data)
+    data_size = bytes(f'{len(data_to_send):<{10}}', "utf-8")
+    try:
+        clientsocket.send(data_size + data_to_send)
+        
+    except socket.error as e:
+        print(e)
 
 '''
 List of string msg's sent:
@@ -40,7 +67,8 @@ def threaded_client(conn, p, gameId):
     reply = ""
     while True:
         try:
-            data = conn.recv(4096).decode() #server recieves str data from client
+            # data = conn.recv(8192).decode() #server recieves str data from client
+            data = receive_data(conn)
             
             if gameId in games:
                 game = games[gameId]
@@ -49,17 +77,25 @@ def threaded_client(conn, p, gameId):
                     break
                 else:
                     if data == "ready":
+                        print("[INFO] player " + str(p) + " is ready!")
                         game.pLock[p] = True
                     elif data != "get":
-                        #guess
-                        game.play(p, data)
-                        print("[INFO] move = ", data)
-                        game.selection[p] = data
+                        # game is being played
+                        coords = list( map(int, data.split(",")) )
+                        print("[INFO] player " + str(p) + " coords: ", data)
+                        
+                        # Change player turn
+                        game.Turn[p] = False
+                        if p == 0: game.Turn[p+1] = True
+                        else: game.Turn[p-1] = True
                     reply = game
-                    conn.sendall(pickle.dumps(reply))
+                    # conn.sendall(pickle.dumps(reply))
+                    send_data(conn, reply)
             else:
                 break
-        except:
+        except Exception as e:
+            print("Failed try")
+            print(e)
             break
 
     print("Lost connection")

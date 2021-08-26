@@ -6,6 +6,7 @@ from ship import Ship
 from button import Button
 import math
 import string
+import sys
 
 pygame.font.init()
 
@@ -316,7 +317,7 @@ def event_check(win, run, user_grid, opp_grid, n, game, player):
         # print(col, row)
 
         if pygame.mouse.get_pressed()[0]:
-
+            
             if not game.pLock[player]:
             # grid area
                 if mouse_pos[1] <= 710:
@@ -453,18 +454,34 @@ def event_check(win, run, user_grid, opp_grid, n, game, player):
                         print("LOCKING -----")
                         LOCK_B.color = "Pink"
                         n.send("ready")
+                        # tuple_string = ("{},{}".format(col,row))
+                        # print(tuple_string)
+                        # print(type(tuple_string))
+                        
+                        # res = list( map(int, tuple_string.split(",")) )
+                        # print("res: ", res)
+                        # print(type(res))
+                        
+                        
+                        # print ("{}".format((col,row)))
                 # if CHOSEN_SHIP != None:
                 #     print(CHOSEN_SHIP.name)
                                             
                     # opp grid area
                     # update code here for game being played
             else:
-                for row in opp_grid:
-                    for cube in row:
-                        # opp_cube = opp_grid[col][row]
-                        if cube.get_obj().collidepoint(mouse_pos):
-                            cube.color = 'Red'
-
+                # print("hitting else statement", player, game.p1Turn)
+                if game.Turn[player]:
+                    for row in opp_grid:
+                        for cube in row:
+                            # opp_cube = opp_grid[col][row]
+                            if cube.get_obj().collidepoint(mouse_pos):
+                                print("cube in opp grid hit")
+                                cube.color = 'Red'
+                                c, r = cube.col, cube.row
+                                guess_coords = ("{},{}".format(c,r))
+                                n.send(guess_coords)
+                                # n.send("super long msg")
 
 
     return run
