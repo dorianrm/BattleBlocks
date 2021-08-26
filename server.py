@@ -88,9 +88,9 @@ def threaded_client(conn, p, gameId):
                         print(game.coords)
                     elif data != "get":
                         # game is being played
-                        coords = list( map(int, data.split(",")) )
-                        print("[INFO] player " + str(p) + " coords: (" + str(coords[0]) + " , " + COL_NAME[coords[1]] + ")")
-                    
+                        # coords = list( map(int, data.split(",")) )
+                        # print("[INFO] player " + str(p) + " coords: (" + str(coords[0]) + " , " + COL_NAME[coords[1]] + ")")
+                        print("[INFO] coords: ", data)
                         # Change player turn
                         game.Turn[p] = False
                         if p == 0: game.Turn[p+1] = True

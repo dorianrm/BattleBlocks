@@ -458,29 +458,42 @@ def event_check(win, run, user_grid, opp_grid, n, game, player):
                         print("LOCKING -----")
                         LOCK_B.color = "Pink"
                         ship_coords = build_coords_data()
-                        # my_dict = json.loads(ship_coords)
-                        # print("my_dict: ", my_dict)
-                        # print("type of my_dict: ", type(my_dict))
-                        # ship_coords_string = ''.join(ship_coords)
-                        # print(ship_coords_string)
                         n.send("r"+ship_coords)
 
             # opp grid area
             # update code here for game being played
             else:
-                # print("hitting else statement", player, game.p1Turn)
                 if game.Turn[player]:
                     for row in opp_grid:
                         for cube in row:
-                            # opp_cube = opp_grid[col][row]
-                            if cube.get_obj().collidepoint(mouse_pos) and (cube.col, cube.row) not in MOVES:
+                            selection = (cube.col, cube.row)
+                            if cube.get_obj().collidepoint(mouse_pos) and selection not in MOVES:
                                 #valid shot selection
-                                cube.color = 'Red'
-                                guess_coords = ("{},{}".format(cube.col,cube.row))
-                                MOVES.add((cube.col, cube.row))
-                                # if 
+                                
+                                # convert tuple selection to string and send to server
+                                guess_coords = ("{}".format(selection))
+                                print("guess_coords: ", guess_coords)
+                                MOVES.add(selection)
+                                selection = list(selection)
+                                
+                                # get opp ship coords
+                                opp_dict_coords = {}
+                                if player == 0:
+                                    opp_dict_coords = game.coords[1].values()
+                                else:
+                                    opp_dict_coords = game.coords[0].values()
+                                    
+                                # check if hit or miss
+                                hit_bool = False
+                                for ship_coords in opp_dict_coords:
+                                    if selection in ship_coords:
+                                        hit_bool = True
+                                        break
+                                if hit_bool:
+                                    cube.color = "Red"
+                                else:
+                                    cube.color = "Green"
                                 n.send(guess_coords)
-                                # n.send("super long msg")
 
 
     return run
