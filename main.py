@@ -25,11 +25,8 @@ SHIPS = {}
 CHOSEN_SHIP = None 
 UNSELECT = (100,100,100)
 SELECT = "Yellow"
-UP_B, DOWN_B, LEFT_B, RIGHT_B, ROTATE_B = None, None, None, None, None
-LOCK_B = None
-READY = False
-P2LOCK = False
-MOVES = set() # Track shots made thorughout gam
+UP_B, DOWN_B, LEFT_B, RIGHT_B, ROTATE_B, LOCK_B  = None, None, None, None, None, None
+MOVES = set() # Track shots made thorughout game
 
 
 def init_grid():
@@ -103,11 +100,17 @@ def draw_board(win):
     y = y_o + C_SIZE
     for i in range(1,11):
         text = font.render(str(i), 1, (0,0,0))
+        #user
         win.blit(text, (x+(C_SIZE//2 - text.get_width()//2), y_o+(C_SIZE//2-text.get_height()//2)))
+        #opp
+        win.blit(text, (x+700+(C_SIZE//2 - text.get_width()//2), y_o+(C_SIZE//2-text.get_height()//2)))
         x += C_SIZE
 
         text = font.render(string.ascii_lowercase[i-1], 1, (0,0,0))
+        #user
         win.blit(text, (x_o+(C_SIZE//2 - text.get_width()//2), y+(C_SIZE//2-text.get_height()//2)))
+        #opp
+        win.blit(text, (x_o+700+(C_SIZE//2 - text.get_width()//2), y+(C_SIZE//2-text.get_height()//2)))
         y += C_SIZE
 
 
@@ -304,7 +307,7 @@ def get_mouse_pos(pos):
     return row,col  
 
 def event_check(win, run, user_grid, opp_grid, n, game, player):
-    global CHOSEN_SHIP, READY
+    global CHOSEN_SHIP
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
@@ -454,32 +457,21 @@ def event_check(win, run, user_grid, opp_grid, n, game, player):
                         print("LOCKING -----")
                         LOCK_B.color = "Pink"
                         n.send("ready")
-                        # tuple_string = ("{},{}".format(col,row))
-                        # print(tuple_string)
-                        # print(type(tuple_string))
-                        
-                        # res = list( map(int, tuple_string.split(",")) )
-                        # print("res: ", res)
-                        # print(type(res))
-                        
-                        
-                        # print ("{}".format((col,row)))
-                # if CHOSEN_SHIP != None:
-                #     print(CHOSEN_SHIP.name)
-                                            
-                    # opp grid area
-                    # update code here for game being played
+
+            # opp grid area
+            # update code here for game being played
             else:
                 # print("hitting else statement", player, game.p1Turn)
                 if game.Turn[player]:
                     for row in opp_grid:
                         for cube in row:
                             # opp_cube = opp_grid[col][row]
-                            if cube.get_obj().collidepoint(mouse_pos):
-                                print("cube in opp grid hit")
+                            if cube.get_obj().collidepoint(mouse_pos) and (cube.col, cube.row) not in MOVES:
+                                #valid shot selection
                                 cube.color = 'Red'
-                                c, r = cube.col, cube.row
-                                guess_coords = ("{},{}".format(c,r))
+                                guess_coords = ("{},{}".format(cube.col,cube.row))
+                                MOVES.add((cube.col, cube.row))
+                                # if 
                                 n.send(guess_coords)
                                 # n.send("super long msg")
 

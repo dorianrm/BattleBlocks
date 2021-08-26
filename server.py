@@ -26,6 +26,7 @@ print("[WAITING] Waiting for a connection...")
 games = {}
 idCount = 0
 HEADERSIZE = 10
+COL_NAME = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']
 
 def receive_data(sock):
     full_msg = b''
@@ -82,8 +83,8 @@ def threaded_client(conn, p, gameId):
                     elif data != "get":
                         # game is being played
                         coords = list( map(int, data.split(",")) )
-                        print("[INFO] player " + str(p) + " coords: ", data)
-                        
+                        print("[INFO] player " + str(p) + " coords: (" + str(coords[0]) + " , " + COL_NAME[coords[1]] + ")")
+                    
                         # Change player turn
                         game.Turn[p] = False
                         if p == 0: game.Turn[p+1] = True
