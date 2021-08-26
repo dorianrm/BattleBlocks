@@ -331,7 +331,7 @@ def event_check(win, run, user_grid, opp_grid, n, game, player):
                         if CHOSEN_SHIP and not CHOSEN_SHIP.check_placed():
                             # size of ship exceeds height of grid.
                             # ships placed vertically with the top at user's mouse location 
-                            if row + CHOSEN_SHIP.size <= ROWS:
+                            if row >= 1 and col >= 1 and row + CHOSEN_SHIP.size <= ROWS:
                                 coords = []
                                 size = CHOSEN_SHIP.size
                                 y,x = row, col
