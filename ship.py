@@ -40,6 +40,9 @@ class Ship:
     def set_coords(self, coordinates):
         self.coords = coordinates
     
+    def get_coords(self):
+        return self.coords
+    
     def set_ship_selected(self, grid):
         for x,y in self.coords:
             grid[x][y].color = "Yellow"
