@@ -1,12 +1,12 @@
 class Game:
     def __init__(self, id):
-        self.Turn = [True, False]
         self.ready = False #both p's conn, ready to play
+        self.Turn = [True, False]
         self.inProgress = False
         self.pLock = [False, False]
         self.id = id
         self.moves = [None, None]
-        self.selection = [None, None]
+        self.shotStatus = [None, None] #Bool: True=Hit False=Miss
         self.coords = [None, None]
 
     def play(self, player, coordinate):

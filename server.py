@@ -96,6 +96,10 @@ def threaded_client(conn, p, gameId):
                         game.Turn[p] = False
                         if p == 0: game.Turn[p+1] = True
                         else: game.Turn[p-1] = True
+                        
+                        #Update hit/miss status
+                        if data == "hit": game.shotStatus[p] = True
+                        elif data == "miss": game.shotStatus[p] = False
                     reply = game
                     # conn.sendall(pickle.dumps(reply))
                     send_data(conn, reply)

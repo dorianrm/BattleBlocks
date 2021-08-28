@@ -254,62 +254,52 @@ def draw_text(win, game, player):
 
     #user
     pygame.draw.rect(win, 'Pink', (G_X, 5, G_WIDTH, 50))
+    user_status = ""
     #opp
     pygame.draw.rect(win, 'Pink', (WIDTH-G_WIDTH-G_X, 5, G_WIDTH, 50))
+    opp_status = ""
 
-    #game is playing, update status of turn, hits, misses, etc.
+    # Game is playing, update status of turn, hits, misses, etc.
     if game.inProgress:
         if game.Turn[player]:
-            #user
-            status = "Select shot on enemy grid"
-            text = font.render(status, 1, (0,0,0))
-            win.blit(text, (G_X + round(text.get_width()/2), 5+(50//2) - round(text.get_height()/2) ))
-        
-            #opp
-            status = "Enemy bracing for impact..."
-            text = font.render(status, 1, (0,0,0))
-            win.blit(text, (WIDTH-G_WIDTH-G_X+(G_WIDTH//2) - round(text.get_width()/2), 5+(50//2) - round(text.get_height()/2) ))
+            user_status = "Select shot on enemy grid"
+            opp_status = "Enemy bracing for impact..."
     
         else:
-            # Miss/Hit - Bracing for impact!
-            status = "Bracing for impact!"
-            text = font.render(status, 1, (0,0,0))
-            win.blit(text, (G_X + round(text.get_width()/2), 5+(50//2) - round(text.get_height()/2) ))
+            # User: Miss/Hit - Bracing for impact!
+            if game.shotStatus[player] == None: user_status = "Brace for impact!"
+            elif game.shotStatus[player]: user_status = "Hit! - Brace for impact!"
+            else: user_status ="Miss! - Brace for impact!"
         
             #opp
-            status = "Enemy calibrating shot..."
-            text = font.render(status, 1, (0,0,0))
-            win.blit(text, (WIDTH-G_WIDTH-G_X+(G_WIDTH//2) - round(text.get_width()/2), 5+(50//2) - round(text.get_height()/2) ))
+            opp_status = "Enemy calibrating shot..."
     
     # Ship selection in progress
-    else:
-        # user
-        # Still need to place ships and lock into place
-        if not game.pLock[player]:
-            status = "Place ships and select lock"
-            text = font.render(status, 1, (0,0,0))
-            win.blit(text, (G_X + round(text.get_width()/2), 5+(50//2) - round(text.get_height()/2) ))
-            
+    else:           
         # Ships locked in
         if game.pLock[player]:
-            status = "Waiting for opponent..."
-            text = font.render(status, 1, (0,0,0))
-            win.blit(text, (G_X + round(text.get_width()/2), 5+(50//2) - round(text.get_height()/2) ))
-        
-    
+            user_status = "Waiting for opponent..."
+        else:  # Still need to place ships and lock into place
+            user_status = "Place ships and select lock"
+
         #opp
         #opp organzing fleet
         if (player == 0 and not game.pLock[player+1]) or (player == 1 and not game.pLock[player-1]):
-            status = "Enemy organizing fleet..."
-            text = font.render(status, 1, (0,0,0))
-            win.blit(text, (WIDTH-G_WIDTH-G_X+(G_WIDTH//2) - round(text.get_width()/2), 5+(50//2) - round(text.get_height()/2) ))
+            opp_status = "Enemy organizing fleet..."
         
         #opp finished organizing fleet
         if (player == 0 and game.pLock[player+1]) or (player == 1 and game.pLock[player-1]):
-            status = "Enemy ready!"
-            text = font.render(status, 1, (0,0,0))
-            win.blit(text, (WIDTH-G_WIDTH-G_X+(G_WIDTH//2) - round(text.get_width()/2), 5+(50//2) - round(text.get_height()/2) ))
+            opp_status = "Enemy ready!"        
         
+    #Blit text on screen
+    #user
+    text = font.render(user_status, 1, (0,0,0))
+    win.blit(text, (G_X+(G_WIDTH//2) - round(text.get_width()/2), 5+(50//2) - round(text.get_height()/2) ))
+
+    #opp
+    text = font.render(opp_status, 1, (0,0,0))
+    win.blit(text, (WIDTH-(G_WIDTH//2)-G_X - round(text.get_width()/2), 5+(50//2) - round(text.get_height()/2) ))
+
     
 
 def draw_window(win, user_grid, opp_grid, game, player):
@@ -493,8 +483,8 @@ def event_check(win, run, user_grid, opp_grid, n, game, player):
                                 #valid shot selection
                                 
                                 # convert tuple selection to string and send to server
-                                guess_coords = ("{}".format(selection))
-                                print("guess_coords: ", guess_coords)
+                                # guess_coords = ("{}".format(selection))
+                                shot_status = "miss"
                                 MOVES.add(selection)
                                 selection = list(selection)
                                 
@@ -513,9 +503,10 @@ def event_check(win, run, user_grid, opp_grid, n, game, player):
                                         break
                                 if hit_bool:
                                     cube.color = HIT
+                                    shot_status = "hit"
                                 else:
                                     cube.color = MISS
-                                n.send(guess_coords)
+                                n.send(shot_status)
 
 
     return run
