@@ -84,7 +84,8 @@ def threaded_client(conn, p, gameId):
                         data = data[1:]
                         data = json.loads(data)
                         game.coords[p] = data
-                        # print("Player " + str(p) +" coords: ", data)
+                        if game.pLock[0] and game.pLock[1]:
+                            game.inProgress = True
                         print(game.coords)
                     elif data != "get":
                         # game is being played

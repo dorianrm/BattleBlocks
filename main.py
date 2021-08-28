@@ -25,6 +25,8 @@ GRID_COLOR = (100,100,255)
 SHIPS = {}
 CHOSEN_SHIP = None 
 UNSELECT = (100,100,100)
+HIT = (255,0,0)
+MISS = (220,220,220)
 SELECT = "Yellow"
 UP_B, DOWN_B, LEFT_B, RIGHT_B, ROTATE_B, LOCK_B  = None, None, None, None, None, None
 MOVES = set() # Track shots made thorughout game
@@ -257,8 +259,28 @@ def draw_text(win, game, player):
 
     #game is playing, update status of turn, hits, misses, etc.
     if game.inProgress:
-        print("temp")
+        if game.Turn[player]:
+            #user
+            status = "Select shot on enemy grid"
+            text = font.render(status, 1, (0,0,0))
+            win.blit(text, (G_X + round(text.get_width()/2), 5+(50//2) - round(text.get_height()/2) ))
         
+            #opp
+            status = "Enemy bracing for impact..."
+            text = font.render(status, 1, (0,0,0))
+            win.blit(text, (WIDTH-G_WIDTH-G_X+(G_WIDTH//2) - round(text.get_width()/2), 5+(50//2) - round(text.get_height()/2) ))
+    
+        else:
+            # Miss/Hit - Bracing for impact!
+            status = "Bracing for impact!"
+            text = font.render(status, 1, (0,0,0))
+            win.blit(text, (G_X + round(text.get_width()/2), 5+(50//2) - round(text.get_height()/2) ))
+        
+            #opp
+            status = "Enemy calibrating shot..."
+            text = font.render(status, 1, (0,0,0))
+            win.blit(text, (WIDTH-G_WIDTH-G_X+(G_WIDTH//2) - round(text.get_width()/2), 5+(50//2) - round(text.get_height()/2) ))
+    
     # Ship selection in progress
     else:
         # user
@@ -490,9 +512,9 @@ def event_check(win, run, user_grid, opp_grid, n, game, player):
                                         hit_bool = True
                                         break
                                 if hit_bool:
-                                    cube.color = "Red"
+                                    cube.color = HIT
                                 else:
-                                    cube.color = "Green"
+                                    cube.color = MISS
                                 n.send(guess_coords)
 
 
