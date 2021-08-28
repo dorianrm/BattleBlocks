@@ -21,6 +21,11 @@ class Cube(object):
     
     def get_obj(self):
         return self.obj
+    
+    def draw_icon(self, win, icon_color, w_x, w_y):
+        if not self.obj:
+            self.obj = pygame.Rect(self.col, self.row, w_x, w_y)
+        pygame.draw.rect(win, icon_color, self.obj)
 
     # Color setting
     # def set_start(self):

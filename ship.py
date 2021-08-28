@@ -7,7 +7,8 @@ class Ship:
         self.size = size
 
         self.hits = 0
-        self.icon = None
+        self.icon = []
+        # self.temp_icon = []
         self.icon_color = (100,100,100)
         self.outline_color = 'Black'
         self.selected = False
