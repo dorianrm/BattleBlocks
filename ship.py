@@ -1,4 +1,5 @@
 import pygame
+import json
 
 class Ship:
     def __init__(self, name, color, size):
@@ -34,7 +35,8 @@ class Ship:
 
     def draw(self, grid):
         if len(self.coords) > 0:
-            for col,row in self.coords:
+            for entry in self.coords:
+                col,row = entry["coordinate"][0], entry["coordinate"][1]
                 grid[col][row].color = self.color
         return grid
 
@@ -45,12 +47,19 @@ class Ship:
         return self.coords
     
     def set_ship_selected(self, grid):
-        for x,y in self.coords:
+        for entry in self.coords:
+            col,row = entry["coordinate"][0], entry["coordinate"][1]
             grid[x][y].color = "Yellow"
     
     def set_ship_unselected(self, grid):
-        for x,y in self.coords:
+        for entry in self.coords:
+            col,row = entry["coordinate"][0], entry["coordinate"][1]
             grid[x][y].color = (100,100,100)
+
+'''
+    Coords structure
     
-    
-    
+    - Each entry is a dictionary
+        - "coordinate" -> (x,y) tuple
+        - "hit" -> Bool for coord shot by opp
+'''

@@ -358,8 +358,6 @@ def event_check(win, run, user_grid, opp_grid, n, game, player):
 
         mouse_pos = pygame.mouse.get_pos()
         row, col = get_mouse_pos(mouse_pos)
-        # print(mouse_pos)
-        # print(col, row)
 
         if pygame.mouse.get_pressed()[0]:
             
@@ -383,7 +381,10 @@ def event_check(win, run, user_grid, opp_grid, n, game, player):
                                     if user_grid[x][y].color == UNSELECT:
                                         overlap_bool = True
                                         break
-                                    coords.append((x,y))
+                                    coords.append({
+                                        "coordinate": (x,y),
+                                        "hit": False
+                                        })
                                     y += 1
                                     
                                 # Sucessfully placed - update params of ship 
@@ -394,19 +395,21 @@ def event_check(win, run, user_grid, opp_grid, n, game, player):
 
                         else:
                             # check if mouse coords is selecting placed ship
-                            chosen_counter = 0
+                            chosen_counter = False
                             for ship in SHIPS['user'].values():
-                                if (col, row) in ship.coords:
-                                    chosen_counter += 1
-                                    CHOSEN_SHIP = ship
-                                    ship.icon_color = SELECT
-                                    ship.color = SELECT
-                                else:
-                                    # Unselect all other ships not selected by mouse
-                                    ship.icon_color = UNSELECT
-                                    ship.color = UNSELECT
+                                for entry in ship.coords:
+                                    if (col,row) == entry["coordinate"]:
+                                        chosen_counter = True
+                                        CHOSEN_SHIP = ship
+                                        ship.icon_color = SELECT
+                                        ship.color = SELECT
+                                        break
+                                    else:
+                                        # Unselect all other ships not selected by mouse
+                                        ship.icon_color = UNSELECT
+                                        ship.color = UNSELECT
                             # No ship selected - unselect prev chosen ship
-                            if chosen_counter != 1:
+                            if not chosen_counter:
                                 CHOSEN_SHIP = None
                                 
                 # button / icon area
@@ -444,67 +447,93 @@ def event_check(win, run, user_grid, opp_grid, n, game, player):
                         if UP_B.polygon_collision(mouse_pos):
                             print("Up button pressed")
                             movement_bool = True
-                            for x,y in CHOSEN_SHIP.coords:
+                            for entry in CHOSEN_SHIP.coords:
+                                x,y = entry["coordinate"][0], entry["coordinate"][1]
                                 if y-1 < 1 or user_grid[x][y-1].color == UNSELECT:
                                     overflow_bool = True
                                     break
-                                new_coords.append((x,y-1))
+                                new_coords.append({
+                                    "coordinate": (x,y-1),
+                                    "hit": False
+                                })
 
 
                         elif DOWN_B.polygon_collision(mouse_pos):
                             print("Down button pressed")
                             movement_bool = True
-                            for x,y in CHOSEN_SHIP.coords:
+                            for entry in CHOSEN_SHIP.coords:
+                                x,y = entry["coordinate"][0], entry["coordinate"][1]
                                 if y+1 >= ROWS or user_grid[x][y+1].color == UNSELECT:
                                     overflow_bool = True
                                     break
-                                new_coords.append((x,y+1))
+                                new_coords.append({
+                                    "coordinate": (x,y+1),
+                                    "hit": False
+                                })
 
                         elif LEFT_B.polygon_collision(mouse_pos):
                             print("Left button pressed")
                             movement_bool = True
-                            for x,y in CHOSEN_SHIP.coords:
+                            for entry in CHOSEN_SHIP.coords:
+                                x,y = entry["coordinate"][0], entry["coordinate"][1]
                                 if x-1 < 1 or user_grid[x-1][y].color == UNSELECT:
                                     overflow_bool = True
                                     break
-                                new_coords.append((x-1,y))
+                                new_coords.append({
+                                    "coordinate": (x-1,y),
+                                    "hit": False
+                                })
 
                         elif RIGHT_B.polygon_collision(mouse_pos):
                             print("Right button pressed")
                             movement_bool = True
-                            for x,y in CHOSEN_SHIP.coords:
+                            for entry in CHOSEN_SHIP.coords:
+                                x,y = entry["coordinate"][0], entry["coordinate"][1]
                                 if x+1 >= COLS or user_grid[x+1][y].color == UNSELECT:
                                     overflow_bool = True
                                     break
-                                new_coords.append((x+1,y))
+                                new_coords.append({
+                                    "coordinate": (x+1,y),
+                                    "hit": False
+                                })
+                                
                         
                         elif ROTATE_B.circle_collision(mouse_pos):
                             print("Rotate button pressed")
                             movement_bool = True
-                            ox, oy = CHOSEN_SHIP.coords[0]
+                            # ox, oy = CHOSEN_SHIP.coords[0]
+                            ox, oy = CHOSEN_SHIP.coords[0]["coordinate"][0], CHOSEN_SHIP.coords[0]["coordinate"][1]
                             angle = math.pi/2 #90 degrees
-                            new_coords.append((ox,oy))
-                            for px, py in CHOSEN_SHIP.coords[1:]:
+                            new_coords.append({
+                                "coordinate": (ox,oy),
+                                "hit": False
+                            })
+                            for entry in CHOSEN_SHIP.coords[1:]:
+                                px, py = entry["coordinate"][0], entry["coordinate"][1]
                                 qx = int( ox + math.cos(angle) * (px - ox) - math.sin(angle) * (py - oy) )
                                 qy = int( oy + math.sin(angle) * (px - ox) + math.cos(angle) * (py - oy) )
                                 if qx < 1 or qx >= COLS or qy < 1 or qy >= ROWS or user_grid[qx][qy].color == UNSELECT:
                                     overflow_bool = True
                                     break
-                                new_coords.append((qx,qy))
+                                new_coords.append({
+                                    "coordinate": (qx,qy),
+                                    "hit": False
+                                })
 
 
-                        print("before: ", CHOSEN_SHIP.coords)
+                        # print("before: ", CHOSEN_SHIP.coords)
                         if movement_bool and not overflow_bool:
-                            for x,y in CHOSEN_SHIP.coords:
+                            for entry in CHOSEN_SHIP.coords:
+                                x,y = entry["coordinate"][0], entry["coordinate"][1]
                                 user_grid[x][y].color = (42, 179, 247)
                             CHOSEN_SHIP.coords = new_coords
-                        print("after: ", CHOSEN_SHIP.coords)
+                            # print("after: ", CHOSEN_SHIP.coords)
 
                     elif LOCK_B.rect_collision(mouse_pos) and ships_placed_check() and not game.pLock[player]:
                         print("LOCKING -----")
                         LOCK_B.color = "Pink"
                         ship_coords = build_coords_data()
-                        n.send("r"+ship_coords)
+                        n.send("L"+ship_coords)
 
             # opp grid area
             # update code here for game being played
@@ -520,7 +549,7 @@ def event_check(win, run, user_grid, opp_grid, n, game, player):
                                 # guess_coords = ("{}".format(selection))
                                 shot_status = "miss"
                                 MOVES.add(selection)
-                                selection = list(selection)
+                                
                                 
                                 # get opp ship coords
                                 opp_dict_coords = {}
@@ -540,7 +569,10 @@ def event_check(win, run, user_grid, opp_grid, n, game, player):
                                     shot_status = "hit"
                                 else:
                                     cube.color = MISS
-                                n.send(shot_status)
+                                selection = list(selection)
+                                shot_data = {shot_status: selection}
+                                data = json.dumps(shot_data)
+                                n.send(data)
 
 
     return run
@@ -559,7 +591,6 @@ def build_coords_data():
     data = json.dumps(coords_map)
     return data
 
-        
 
 def main():
     win = pygame.display.set_mode((WIDTH, HEIGHT))

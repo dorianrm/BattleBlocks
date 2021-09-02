@@ -5,8 +5,7 @@ from game import Game
 import json
 
 
-# server = "192.168.1.72" #local
-server = "192.168.7.137" #local ohio
+server = "192.168.1.72" #local
 # server = "98.155.155.206" #public
 # server = "0.0.0.0"
 port = 5555
@@ -78,10 +77,10 @@ def threaded_client(conn, p, gameId):
                 if not data:
                     break
                 else:
-                    if data[0] == "r":
+                    if data[0] == "L":
                         print("[INFO] player " + str(p) + " is ready!")
-                        game.pLock[p] = True
-                        data = data[1:]
+                        game.pLock[p] = True # player p locked
+                        data = data[1:] # parse past leading char
                         data = json.loads(data)
                         game.coords[p] = data
                         if game.pLock[0] and game.pLock[1]:
@@ -92,14 +91,21 @@ def threaded_client(conn, p, gameId):
                         # coords = list( map(int, data.split(",")) )
                         # print("[INFO] player " + str(p) + " coords: (" + str(coords[0]) + " , " + COL_NAME[coords[1]] + ")")
                         print("[INFO] coords: ", data)
+                        data = json.loads(data)
+                        
                         # Change player turn
                         game.Turn[p] = False
                         if p == 0: game.Turn[p+1] = True
                         else: game.Turn[p-1] = True
                         
                         #Update hit/miss status
-                        if data == "hit": game.shotStatus[p] = True
-                        elif data == "miss": game.shotStatus[p] = False
+                        if "hit" in data: 
+                            game.shotStatus[p] = True
+                            
+                        else: 
+                            game.shotStatus[p] = False
+                        
+                        
                     reply = game
                     # conn.sendall(pickle.dumps(reply))
                     send_data(conn, reply)

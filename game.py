@@ -7,7 +7,8 @@ class Game:
         self.id = id
         self.moves = [None, None]
         self.shotStatus = [None, None] #Bool: True=Hit False=Miss
-        self.coords = [None, None]
+        self.coords = [None, None] #coords of all ships for player index
+        self.shot = [None, None]
 
     def play(self, player, coordinate):
         # coordinate = coords (tuple)
