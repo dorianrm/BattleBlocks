@@ -341,7 +341,7 @@ def draw_window(win, user_grid, opp_grid, game, player):
         data = game.shot[player]
         ship = SHIPS['user'][data["ship_name"]]
         for entry in ship.coords:
-            if list(entry["coordinate"]) == data["coordinate"]:
+            if entry["coordinate"] == data["coordinate"]:
                 entry["hit"] = True
                 break
     draw_buttons(win)
@@ -389,7 +389,7 @@ def event_check(win, run, user_grid, opp_grid, n, game, player):
                                         overlap_bool = True
                                         break
                                     coords.append({
-                                        "coordinate": (x,y),
+                                        "coordinate": [x,y],
                                         "hit": False
                                         })
                                     y += 1
@@ -405,7 +405,7 @@ def event_check(win, run, user_grid, opp_grid, n, game, player):
                             chosen_counter = False
                             for ship in SHIPS['user'].values():
                                 for entry in ship.coords:
-                                    if (col,row) == entry["coordinate"]:
+                                    if [col,row] == entry["coordinate"]:
                                         chosen_counter = True
                                         CHOSEN_SHIP = ship
                                         ship.icon_color = SELECT
@@ -460,7 +460,7 @@ def event_check(win, run, user_grid, opp_grid, n, game, player):
                                     overflow_bool = True
                                     break
                                 new_coords.append({
-                                    "coordinate": (x,y-1),
+                                    "coordinate": [x,y-1],
                                     "hit": False
                                 })
 
@@ -474,7 +474,7 @@ def event_check(win, run, user_grid, opp_grid, n, game, player):
                                     overflow_bool = True
                                     break
                                 new_coords.append({
-                                    "coordinate": (x,y+1),
+                                    "coordinate": [x,y+1],
                                     "hit": False
                                 })
 
@@ -487,7 +487,7 @@ def event_check(win, run, user_grid, opp_grid, n, game, player):
                                     overflow_bool = True
                                     break
                                 new_coords.append({
-                                    "coordinate": (x-1,y),
+                                    "coordinate": [x-1,y],
                                     "hit": False
                                 })
 
@@ -500,7 +500,7 @@ def event_check(win, run, user_grid, opp_grid, n, game, player):
                                     overflow_bool = True
                                     break
                                 new_coords.append({
-                                    "coordinate": (x+1,y),
+                                    "coordinate": [x+1,y],
                                     "hit": False
                                 })
                                 
@@ -512,7 +512,7 @@ def event_check(win, run, user_grid, opp_grid, n, game, player):
                             ox, oy = CHOSEN_SHIP.coords[0]["coordinate"][0], CHOSEN_SHIP.coords[0]["coordinate"][1]
                             angle = math.pi/2 #90 degrees
                             new_coords.append({
-                                "coordinate": (ox,oy),
+                                "coordinate": [ox,oy],
                                 "hit": False
                             })
                             for entry in CHOSEN_SHIP.coords[1:]:
@@ -523,7 +523,7 @@ def event_check(win, run, user_grid, opp_grid, n, game, player):
                                     overflow_bool = True
                                     break
                                 new_coords.append({
-                                    "coordinate": (qx,qy),
+                                    "coordinate": [qx,qy],
                                     "hit": False
                                 })
 
@@ -551,12 +551,7 @@ def event_check(win, run, user_grid, opp_grid, n, game, player):
                             selection = (cube.col, cube.row)
                             if cube.get_obj().collidepoint(mouse_pos) and selection not in MOVES:
                                 #valid shot selection
-                                
-                                # convert tuple selection to string and send to server
-                                # guess_coords = ("{}".format(selection))
-                                shot_status = "miss"
                                 MOVES.add(selection)
-                                
                                 
                                 # get opp ship coords
                                 opp_dict_coords = {}
@@ -578,34 +573,22 @@ def event_check(win, run, user_grid, opp_grid, n, game, player):
                                         for entry in ship_data["ship_coords"]:
                                             if selection == entry["coordinate"]:
                                                 hit_bool = True
-                                                shot_data["hit"] = True
-                                                shot_data["ship_name"] = ship_name
-                                                shot_data["coordinate"] = entry["coordinate"]
+                                                shot_data = {
+                                                    "hit" : True,
+                                                    "ship_name" : ship_name,
+                                                    "coordinate" : entry["coordinate"]
+                                                }
                                                 break
-                                        
+
                                 if hit_bool:
                                     cube.color = HIT
-                                    shot_status = "hit"
                                 else:
                                     cube.color = MISS
                                 
                                 data = json.dumps(shot_data)
                                 n.send(data)
                                 break
-
-                elif not game.Turn[player] and game.ready and game.shot[player] != None:
-                    data = game.shot[player]
-                    ship = SHIPS['user'][data["ship_name"]]
-                    for entry in ship.coords:
-                        print("entry[coordinate]: ", entry["coordinate"])
-                        print("data[coordinate]: ", data["coordinate"])
-                        if list(entry["coordinate"]) == data["coordinate"]:
-                            entry["hit"] = True
-                            print("setting new hit!!!")
-                            break
-                    print(ship.coords)
                     
-
     return run
 
 def ships_placed_check():
