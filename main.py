@@ -96,7 +96,6 @@ def draw_board(win):
     # pygame.draw.rect(win, 'Pink', (x_o, 5, G_WIDTH, 50))
     # pygame.draw.rect(win, 'Pink', (WIDTH-G_WIDTH-x_o, 5, G_WIDTH, 50))
 
-
     #draw coords
     font = pygame.font.SysFont('Arial', 25)
     x = x_o + C_SIZE
@@ -116,126 +115,32 @@ def draw_board(win):
         win.blit(text, (x_o+700+(C_SIZE//2 - text.get_width()//2), y+(C_SIZE//2-text.get_height()//2)))
         y += C_SIZE
 
-
-def draw_destroyer(win, size, x, y, s, player):
-    l = 2 * size
+def draw_ship_icon(win, size, x, y, space, player, name, length):
+    l = length * size
     x_o = x
     icon_bool = False
     
-    destroyer_icon = SHIPS[player]['destroyer'].get_icon()
-    if len(destroyer_icon) == 0:
+    ship = SHIPS[player][name]
+    icon = ship.get_icon()
+    if len(icon) == 0:
         icon_bool = True
-    color = SHIPS[player]['destroyer'].icon_color
-    outline_color = SHIPS[player]['destroyer'].outline_color
-
-    for i in range(3):
-        if i < 2:
+    
+    outline_color = ship.outline_color
+    
+    for i in range(length+1):
+        if i < length:
+            color = ship.icon_color
             if icon_bool:
-                destroyer_icon.append(Cube(x,y))
-            destroyer_icon[i].draw_icon(win, color, size, size)
+                icon.append(Cube(x,y))
+            elif ship.check_placed() and ship.coords[i]["hit"]:
+                color = "Red"
+            icon[i].draw_icon(win, color, size, size)
         pygame.draw.line(win, outline_color, (x, y), (x, y+size)) #left
         x += size
     pygame.draw.line(win, outline_color, (x_o, y), (x_o+l, y))
     pygame.draw.line(win, outline_color, (x_o, y+size), (x_o+l, y+size))
     
-    return x-size+s  
-
-def draw_submarine(win, size, x, y, s, player):
-    l = 3 * size
-    x_o = x
-    icon_bool = False
-    
-    submarine_icon = SHIPS[player]['submarine'].get_icon()
-    if len(submarine_icon) == 0:
-        icon_bool = True
-    color = SHIPS[player]['submarine'].icon_color
-    outline_color = SHIPS[player]['submarine'].outline_color
-
-    for i in range(4):
-        if i < 3:
-            if icon_bool:
-                submarine_icon.append(Cube(x,y))
-            submarine_icon[i].draw_icon(win, color, size, size)
-        pygame.draw.line(win, outline_color, (x, y), (x, y+size)) #left
-        x += size
-    pygame.draw.line(win, outline_color, (x_o, y), (x_o+l, y))
-    pygame.draw.line(win, outline_color, (x_o, y+size), (x_o+l, y+size))
-    
-    return x-size+s 
-
-def draw_cruiser(win, size, x, y, s, player):
-    l = 3 * size
-    x_o = x
-    icon_bool = False
-    
-    cruiser_icon = SHIPS[player]['cruiser'].get_icon()
-    if len(cruiser_icon) == 0:
-        icon_bool = True
-    
-    color = SHIPS[player]['cruiser'].icon_color
-    outline_color = SHIPS[player]['cruiser'].outline_color
-    
-
-    for i in range(4):
-        if i < 3:
-            if icon_bool:
-                cruiser_icon.append(Cube(x,y))
-            cruiser_icon[i].draw_icon(win, color, size, size)
-        pygame.draw.line(win, outline_color, (x, y), (x, y+size)) #left
-        x += size
-    pygame.draw.line(win, outline_color, (x_o, y), (x_o+l, y))
-    pygame.draw.line(win, outline_color, (x_o, y+size), (x_o+l, y+size))
-    
-    return x-size+s  
-
-def draw_battleship(win, size, x, y, s, player):
-    l = 4 * size
-    x_o = x
-    icon_bool = False
-    
-    battleship_icon = SHIPS[player]['battleship'].get_icon()
-    if len(battleship_icon) == 0:
-        icon_bool = True
-
-    color = SHIPS[player]['battleship'].icon_color
-    outline_color = SHIPS[player]['battleship'].outline_color
-    
-
-    for i in range(5):
-        if i < 4:
-            if icon_bool:
-                battleship_icon.append(Cube(x,y))
-            battleship_icon[i].draw_icon(win, color, size, size)
-        pygame.draw.line(win, outline_color, (x, y), (x, y+size)) #left
-        x += size
-    pygame.draw.line(win, outline_color, (x_o, y), (x_o+l, y))
-    pygame.draw.line(win, outline_color, (x_o, y+size), (x_o+l, y+size))
-    
-    return x-size+s  
-
-def draw_carrier(win, size, x, y, s, player):
-    l = 5 * size
-    x_o = x
-    icon_bool = False
-    
-    carrier_icon = SHIPS[player]['carrier'].get_icon()
-    if len(carrier_icon) == 0:
-        icon_bool = True
-        
-    color = SHIPS[player]['carrier'].icon_color
-    outline_color = SHIPS[player]['carrier'].outline_color
-    
-    for i in range(6):
-        if i < 5:
-            if icon_bool:
-                carrier_icon.append(Cube(x,y))
-            carrier_icon[i].draw_icon(win, color, size, size)
-        pygame.draw.line(win, outline_color, (x, y), (x, y+size)) #left
-        x += size
-    pygame.draw.line(win, outline_color, (x_o, y), (x_o+l, y))
-    pygame.draw.line(win, outline_color, (x_o, y+size), (x_o+l, y+size))
-    
-    return x-size+s 
+    return x-size+space 
 
 def draw_ships(win, grid):
     
@@ -250,20 +155,20 @@ def draw_ships(win, grid):
     space = 10
 
     #user
-    x = draw_carrier(win, cube_size, x_o, HEIGHT-80, space, 'user')
-    x = draw_battleship(win, cube_size, x, HEIGHT-80, space, 'user')
-    x = draw_cruiser(win, cube_size, x_o, HEIGHT-40, space, 'user')
-    x = draw_submarine(win, cube_size, x, HEIGHT-40, space, 'user')
-    x = draw_destroyer(win, cube_size, x, HEIGHT-40, space, 'user')
+    x = draw_ship_icon(win, cube_size, x_o, HEIGHT-80, space, 'user', 'carrier', 5)
+    x = draw_ship_icon(win, cube_size, x, HEIGHT-80, space, 'user', 'battleship', 4)
+    x = draw_ship_icon(win, cube_size, x_o, HEIGHT-40, space, 'user', 'cruiser', 3)
+    x = draw_ship_icon(win, cube_size, x, HEIGHT-40, space, 'user', 'submarine', 3)
+    x = draw_ship_icon(win, cube_size, x, HEIGHT-40, space, 'user', 'destroyer', 2)
 
     #op
     x_o += 700
-
-    x = draw_carrier(win, cube_size, x_o, HEIGHT-60, space, 'op')
-    x = draw_battleship(win, cube_size, x, HEIGHT-60, space, 'op')
-    x = draw_cruiser(win, cube_size, x, HEIGHT-60, space, 'op')
-    x = draw_submarine(win, cube_size, x, HEIGHT-60, space, 'op')
-    x = draw_destroyer(win, cube_size, x, HEIGHT-60, space, 'op')
+    
+    x = draw_ship_icon(win, cube_size, x_o, HEIGHT-60, space, 'op', 'carrier', 5)
+    x = draw_ship_icon(win, cube_size, x, HEIGHT-60, space, 'op', 'battleship', 4)
+    x = draw_ship_icon(win, cube_size, x, HEIGHT-60, space, 'op', 'cruiser', 3)
+    x = draw_ship_icon(win, cube_size, x, HEIGHT-60, space, 'op', 'submarine', 3)
+    x = draw_ship_icon(win, cube_size, x, HEIGHT-60, space, 'op', 'destroyer', 2)
 
     #create rect for background color
     for ship in SHIPS['user'].values():
@@ -329,14 +234,7 @@ def draw_text(win, game, player):
     text = font.render(opp_status, 1, (0,0,0))
     win.blit(text, (WIDTH-(G_WIDTH//2)-G_X - round(text.get_width()/2), 5+(50//2) - round(text.get_height()/2) ))
 
-    
-
-def draw_window(win, user_grid, opp_grid, game, player):
-    win.fill((180,180,180))
-    pygame.display.set_caption('--- Battle Blocks ---')
-    draw_cubes(win, user_grid, opp_grid)
-    draw_board(win)
-    user_grid = draw_ships(win, user_grid)
+def update_ship_hits():
     if game.ready and game.shot[player] != None:
         data = game.shot[player]
         ship = SHIPS['user'][data["ship_name"]]
@@ -344,6 +242,14 @@ def draw_window(win, user_grid, opp_grid, game, player):
             if entry["coordinate"] == data["coordinate"]:
                 entry["hit"] = True
                 break
+
+def draw_window(win, user_grid, opp_grid, game, player):
+    win.fill((180,180,180))
+    pygame.display.set_caption('--- Battle Blocks ---')
+    draw_cubes(win, user_grid, opp_grid)
+    draw_board(win)
+    user_grid = draw_ships(win, user_grid)
+    update_ship_hits()
     draw_buttons(win)
     draw_text(win, game, player)
     pygame.display.update()
