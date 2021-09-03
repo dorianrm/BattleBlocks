@@ -337,6 +337,13 @@ def draw_window(win, user_grid, opp_grid, game, player):
     draw_cubes(win, user_grid, opp_grid)
     draw_board(win)
     user_grid = draw_ships(win, user_grid)
+    if game.ready and game.shot[player] != None:
+        data = game.shot[player]
+        ship = SHIPS['user'][data["ship_name"]]
+        for entry in ship.coords:
+            if list(entry["coordinate"]) == data["coordinate"]:
+                entry["hit"] = True
+                break
     draw_buttons(win)
     draw_text(win, game, player)
     pygame.display.update()
@@ -554,26 +561,50 @@ def event_check(win, run, user_grid, opp_grid, n, game, player):
                                 # get opp ship coords
                                 opp_dict_coords = {}
                                 if player == 0:
-                                    opp_dict_coords = game.coords[1].values()
+                                    opp_dict_coords = game.coords[1]
                                 else:
-                                    opp_dict_coords = game.coords[0].values()
+                                    opp_dict_coords = game.coords[0]
                                     
                                 # check if hit or miss
+                                shot_data = {
+                                    "hit" : False,
+                                    "ship_name" : None,
+                                    "coordinate" : None
+                                }
+                                selection = list(selection)
                                 hit_bool = False
-                                for ship_coords in opp_dict_coords:
-                                    if selection in ship_coords:
-                                        hit_bool = True
-                                        break
+                                for ship_name, ship_data in opp_dict_coords.items():
+                                    if not hit_bool:
+                                        for entry in ship_data["ship_coords"]:
+                                            if selection == entry["coordinate"]:
+                                                hit_bool = True
+                                                shot_data["hit"] = True
+                                                shot_data["ship_name"] = ship_name
+                                                shot_data["coordinate"] = entry["coordinate"]
+                                                break
+                                        
                                 if hit_bool:
                                     cube.color = HIT
                                     shot_status = "hit"
                                 else:
                                     cube.color = MISS
-                                selection = list(selection)
-                                shot_data = {shot_status: selection}
+                                
                                 data = json.dumps(shot_data)
                                 n.send(data)
+                                break
 
+                elif not game.Turn[player] and game.ready and game.shot[player] != None:
+                    data = game.shot[player]
+                    ship = SHIPS['user'][data["ship_name"]]
+                    for entry in ship.coords:
+                        print("entry[coordinate]: ", entry["coordinate"])
+                        print("data[coordinate]: ", data["coordinate"])
+                        if list(entry["coordinate"]) == data["coordinate"]:
+                            entry["hit"] = True
+                            print("setting new hit!!!")
+                            break
+                    print(ship.coords)
+                    
 
     return run
 
@@ -587,7 +618,10 @@ def ships_placed_check():
 def build_coords_data():
     coords_map = {}
     for ship in SHIPS['user'].values():
-        coords_map[ship.name] = ship.get_coords()
+        coords_map[ship.name] = {
+            "ship_coords" : ship.get_coords(),
+            "hits" : 0
+        }
     data = json.dumps(coords_map)
     return data
 
@@ -617,7 +651,6 @@ def main():
 
         user_grid = draw_window(win, user_grid, opp_grid, game, player)
         event_check(win, run, user_grid, opp_grid, n, game, player)
-        ships_placed_check()
 
 main()
 

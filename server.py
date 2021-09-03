@@ -90,22 +90,32 @@ def threaded_client(conn, p, gameId):
                         # game is being played
                         # coords = list( map(int, data.split(",")) )
                         # print("[INFO] player " + str(p) + " coords: (" + str(coords[0]) + " , " + COL_NAME[coords[1]] + ")")
-                        print("[INFO] coords: ", data)
+                        print("[INFO] shot data: ", data)
                         data = json.loads(data)
+                        opp_dict_coords = {}
+                        opp_player = 0
+                        
+                        if p == 0:
+                            opp_player = 1
                         
                         # Change player turn
                         game.Turn[p] = False
-                        if p == 0: game.Turn[p+1] = True
-                        else: game.Turn[p-1] = True
+                        game.Turn[opp_player] = True
+                        opp_dict_coords = game.coords[opp_player]
                         
                         #Update hit/miss status
-                        if "hit" in data: 
+                        if data["hit"]:
                             game.shotStatus[p] = True
-                            
+                            game.shot[opp_player] = data
+                            ship_coords = opp_dict_coords[data["ship_name"]]["ship_coords"]
+                            for entry in ship_coords:
+                                if entry["coordinate"] ==  data["coordinate"]:
+                                    entry["hit"] = True
+                                    opp_dict_coords[data["ship_name"]]["hits"] += 1
                         else: 
                             game.shotStatus[p] = False
-                        
-                        
+                            game.shot[opp_player] = None
+                        print("game.shot[opp_player]: ", game.shot[opp_player])
                     reply = game
                     # conn.sendall(pickle.dumps(reply))
                     send_data(conn, reply)

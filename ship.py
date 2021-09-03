@@ -37,7 +37,10 @@ class Ship:
         if len(self.coords) > 0:
             for entry in self.coords:
                 col,row = entry["coordinate"][0], entry["coordinate"][1]
-                grid[col][row].color = self.color
+                if entry["hit"]:
+                    grid[col][row].color = "Red"
+                else:
+                    grid[col][row].color = self.color
         return grid
 
     def set_coords(self, coordinates):
